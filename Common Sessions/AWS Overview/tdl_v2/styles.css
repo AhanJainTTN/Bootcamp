@@ -1,0 +1,201 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+}
+
+/* 'box-sizing: border-box' changes the box model for all elements. By default, the width and height of an element are calculated as the content's width/height plus padding and border. With box-sizing: border-box, the width and height include the content, padding, and border. This makes it easier to size elements accurately. */
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #153677, #4e085f);
+  padding: 10px;
+}
+
+/* 'width: 100%' sets the width of the container to 100% of its parent element's width.
+'min-height: 100vh' ensures the container has a minimum height of 100% of the viewport height (i.e., the full height of the browser window). */
+
+.todo-app {
+  /* width: 100%; */
+  max-width: 540px;
+  background: #fff;
+  margin: 100px auto 20px;
+  padding: 40px 30px 40px;
+  border-radius: 10px;
+  position: relative;
+}
+
+/* width ranges from 100% of parent container width (if less than 540px) to 540px - helps the browser to handle container without adding scrollbars when resizing browser windows : https://learnlayout.com/max-width
+Note: default width is 100%
+'margin: auto' it instructs the browser to automatically calculate the margins and distribute the available space evenly on both sides of the element */
+
+.todo-app h2 {
+  color: #002765;
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  margin-bottom: 20px;
+}
+
+.todo-app h2 img {
+  width: 30px;
+  margin-left: 10px;
+}
+
+/* align-items: center is used to align flex items (child elements) vertically in the center of the <h2> element.
+Since <h2> elements are typically block-level and don’t usually contain other elements that would be positioned by Flexbox, this might be used if the <h2> has inline elements or icons as children - we will add an image later where this will make more sense */
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #edeef0;
+  border-radius: 30px;
+  padding-left: 20px;
+  margin-bottom: 25px;
+}
+
+/* justify-content: space-between distributes space between the items, placing the input and button at opposite ends of the .row. */
+
+input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 12px;
+  border-radius: 30px;
+}
+
+/* border: none removes the default border.
+outline: none removes the default outline when the input is focused.
+flex: 1 instructs the item to grow and take up all available space along the main axis of the flex container.
+flex: 1 Allows the input to grow and fill available space in the .row
+The input field inside .row will stretch to fill available space, while the button will stay at the right end, with space distributed evenly between the two elements due to justify-content: space-between. */
+
+#add {
+  border: none;
+  outline: none;
+  padding: 12px 48px;
+  background: #ff5945;
+  color: #fff;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* to select a html element, the css selector is without a dot and to select a class, we use the dot */
+
+ul li {
+  list-style: none;
+  font-size: 16px;
+  padding: 12px 8px 12px 50px;
+  user-select: none;
+  /* cursor: pointer; */
+  position: relative;
+}
+
+/* The position: relative; property on the <li> elements means that the <li> elements themselves are positioned according to the normal flow of the document, but they can also be adjusted with top, right, bottom, or left properties if needed
+no additional offset is provided, so the <li> elements remain in their default positions
+setting position: relative; establishes a containing block for any absolutely positioned children (like the ::before pseudo-element) */
+
+/* ul li::before {
+    content: '';
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background-image: url(images/unchecked.png);
+    background-size: cover;
+    background-position: center;
+    top: 10px;
+    left: 8px;
+} */
+
+/* ::before pseudo-element is positioned absolutely within the nearest ancestor that has a position other than static (default) (i.e., relative, absolute, or fixed)
+the pseudo-element is being placed relative to the <li> elements because they are set to position: relative
+background-size: cover;: This property ensures that the background image covers the entire area of the pseudo-element, potentially cropping it to fit.
+background-position: center;: This centers the background image within the pseudo-element. */
+
+ul li.checked {
+  color: #555;
+  text-decoration: line-through;
+}
+
+/* ul li.checked::before {
+    content: '';
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    top: 10px;
+    left: 8px;
+    background-image: url(images/checked.png);
+} */
+
+/* The commented properties (content, position, height, width, etc.) are redundant in the ul li.checked::before rule because they are already defined in the ul li::before rule.
+When the .checked class is applied, only the background-image property needs to change. The rest of the properties (size, position, etc.) are inherited from the initial ul li::before rule.
+CSS rules cascade and properties defined earlier can be overridden by more specific rules later. Since ul li::before sets up the basic structure and appearance, ul li.checked::before only needs to override the background image.
+The ul li.checked::before rule is more specific because it targets ::before elements within li elements that also have the .checked class */
+
+/* ul li::after {
+    content: '';
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background-image: url(images/cross.png);
+    background-size: cover;
+    background-position: center;
+    top: 10px;
+    right: 8px;
+    cursor: pointer;
+} */
+
+/* use before and after pseudoelements primarily for decorative purposes */
+
+/* ul li img {
+    position: absolute;
+    height: 24px;
+    width: 24px;
+    top: 10px;
+    right: 8px;
+    cursor: pointer;
+} */
+
+#imgCross {
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 13px;
+  right: 8px;
+  cursor: pointer;
+}
+
+#imgCheck {
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  top: 13px;
+  left: 8px;
+  cursor: pointer;
+}
+
+/* making use of imgCross and imgCheck to check and cross off items when the icon is clicked instead of the entire list item container  */
+
+#clearTasks {
+  border: none;
+  outline: none;
+  padding: 12px 48px;
+  background: #ff5945;
+  color: #fff;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  /* position: absolute; */
+  display: block;
+  margin: 25px auto 0px;
+}
