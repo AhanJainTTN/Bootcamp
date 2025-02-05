@@ -19,7 +19,7 @@
 
 # # using indexed placeholders
 # str = "My name is {1} and I am {0} years old.".format(23, 'Ahan')
-# print(str) 
+# print(str)
 
 # # using named placeholders
 # str = "My name is {name} and I am {age} years old.".format(name='Ahan', age=23)

@@ -10,7 +10,7 @@ l1[0] = 4
 print(t)
 
 # possible
-t[0][0] = 9 
+t[0][0] = 9
 print(t)
 
 # possible
