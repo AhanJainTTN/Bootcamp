@@ -17,7 +17,11 @@ def datecount(start=None, step="daily"):
         "yearly": 12,
     }
 
-    step_n = step_dict[step]
+    # Catch error if wrong step entered
+    try:
+        step_n = step_dict[step]
+    except KeyError:
+        print("Enter correct step")
 
     while step in ["daily", "alternatively", "weekly"]:
         yield start
