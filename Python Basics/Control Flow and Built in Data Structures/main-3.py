@@ -7,4 +7,4 @@ filtered_list = [k for k in my_dict if my_dict[k] > 1]
 print(filtered_list)
 
 # TC: O(n) where n is the length of the string
-# SC: No additional space because of the use of generator expression for astring.split()
+# SC: O(n) additional space taken by my_dict
