@@ -1,1 +1,1 @@
-{"package": ["ast", "encodings", "argparse", "os", "weakref", "time", "array", "zipapp", "aifc", "sys"], "function": ["add", "sub", "f"], "class": ["YourClass", "MyClass"], "variable": ["a", "d", "b", "_data", "i", "name", "e", "c", "f", "count", "_list"]}
+{"package": ["os", "array", "encodings", "ast", "aifc", "weakref", "zipapp", "sys", "time", "argparse"], "function": ["sub", "f", "add"], "class": ["YourClass", "MyClass"], "variable": ["c", "count", "a", "_data", "_list", "b", "e", "f", "name", "d", "i"]}

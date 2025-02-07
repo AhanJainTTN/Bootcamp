@@ -79,8 +79,7 @@ def extract_variable(line, extracted_data):
         filtered_string = filtered_string.split(":")[0]
 
         # handle aliases and commas
-        for part in filtered_string.split(","):
-            variable = part.split(" as ")[0]
+        for variable in filtered_string.split(","):
             extracted_data["variable"].add(variable.strip())
     else:
         return
@@ -94,7 +93,7 @@ extracted_data = {
 }
 
 with open(
-    "Python Basics/Input-Output and File Handling/main-2/files/python_script.py"
+    "Python Basics/Input-Output and File Handling/main-2/files/python_script.py", "r"
 ) as script_file, open(
     "Python Basics/Input-Output and File Handling/main-2/files/script_info.json", "w"
 ) as script_info_json:

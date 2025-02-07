@@ -2,7 +2,7 @@ import os, sys
 import encodings, time as t
 import aifc as ai, ast
 import weakref as w, zipapp as z, argparse as arg
-from array import array
+from array import arr
 
 
 def add(a, b):
