@@ -1,53 +1,62 @@
 import os
 import time
 import argparse
-import fnmatch
 
 
-def valid_dir(dir):
-
-    if not os.path.isdir(dir):
-        return False
-    else:
-        return True
+def valid_dir(directory):
+    return os.path.isdir(directory)
 
 
 def valid_atime(filepath, atime):
-
     if atime is None:
         return True
-
     atime_seconds = atime * 86400
-    current_time = time.time()
-    file_atime = os.path.getatime(filepath)
-
-    return current_time - file_atime <= atime_seconds
+    return time.time() - os.path.getatime(filepath) <= atime_seconds
 
 
-def find_file(file, type, atime, filepath, depth, matches):
+def is_match(filename, search_pattern):
+
+    if not search_pattern or filename == search_pattern:
+        return True
+
+    base_name, extension = os.path.splitext(filename)
+
+    if (
+        search_pattern.endswith(".*")
+        and base_name == os.path.splitext(search_pattern)[0]
+    ):
+        return True
+    if (
+        search_pattern.startswith("*.")
+        and extension == os.path.splitext(search_pattern)[1]
+    ):
+        return True
+
+    return False
+
+
+def find_file(search_pattern, search_type, atime, directory, depth, matches):
 
     if depth <= 0:
         return
 
-    for f in os.listdir(filepath):
+    for filename in os.listdir(directory):
 
-        full_path = os.path.join(filepath, f)
+        full_path = os.path.join(directory, filename)
 
-        # if file is not None or fnmatch.fnmatch(f,file):
-
-        if f == file and valid_atime(full_path, atime):
+        if valid_atime(full_path, atime) and is_match(filename, search_pattern):
 
             file_type = "Directory" if os.path.isdir(full_path) else "File"
 
-            if type == None:
+            if search_type == None:
                 matches.append(f"{file_type}: {full_path}")
-            elif type == "d" and os.path.isdir(full_path):
+            elif search_type == "d" and file_type == "Directory":
                 matches.append(f"{file_type}: {full_path}")
-            elif type == "f" and not os.path.isdir(full_path):
+            elif search_type == "f" and file_type == "File":
                 matches.append(f"{file_type}: {full_path}")
 
         if os.path.isdir(full_path):
-            find_file(file, type, atime, full_path, depth - 1, matches)
+            find_file(search_pattern, search_type, atime, full_path, depth - 1, matches)
 
 
 if __name__ == "__main__":
@@ -55,21 +64,21 @@ if __name__ == "__main__":
     matches = list()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-name")
-    parser.add_argument("-type")
-    parser.add_argument("-maxdepth", type=int)
-    parser.add_argument("-atime", type=int)
-    parser.add_argument("directory", type=str)
+    parser.add_argument("-name", default=None)
+    parser.add_argument("-type", choices=["d", "f"], default=None)
+    parser.add_argument("-maxdepth", type=int, default=float("inf"))
+    parser.add_argument("-atime", type=int, default=None)
+    parser.add_argument("directory", type=str, default=os.getcwd(), nargs="?")
     args = parser.parse_args()
 
-    dir = args.directory if dir else os.getcwd()
-    file = args.name
-    depth = args.maxdepth
+    directory = args.directory
+    search_pattern = args.name
+    max_depth = args.maxdepth
     atime = args.atime
-    type = args.type
+    file_type = args.type
 
-    if valid_dir(dir):
-        find_file(file, type, atime, dir, depth, matches)
+    if valid_dir(directory):
+        find_file(search_pattern, file_type, atime, directory, max_depth, matches)
     else:
         print("Not a valid directory.")
 
