@@ -8,4 +8,5 @@
 0.0
 -56
 33
-iamnotanumber
+1.0
+i.am.not.a.number
