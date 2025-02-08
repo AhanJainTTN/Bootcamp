@@ -21,6 +21,8 @@ def extract_package(line, extracted_data):
     # handling aliases and commas
     for part in filtered_string.split(","):
         package = part.split(" as ")[0]
+        if "." in package:
+            package = package.split(".")[0]
         extracted_data["package"].add(package.strip())
 
 

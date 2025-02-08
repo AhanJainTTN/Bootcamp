@@ -1,8 +1,10 @@
-import os, sys
+import opcode, sys
 import encodings, time as t
 import aifc as ai, ast
 import weakref as w, zipapp as z, argparse as arg
 from array import arr
+import collections.abc as collabc
+from os.path import abspath
 
 
 def add(a, b):
