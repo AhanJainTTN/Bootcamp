@@ -7,6 +7,10 @@ import collections.abc as collabc
 from os.path import abspath
 
 
+# def func():
+#     pass
+
+
 def add(a, b):
     return a + b
 
@@ -25,6 +29,10 @@ class MyClass:
 
 
 class YourClass(MyClass):
+    pass
+
+
+class ABC:
     pass
 
 
