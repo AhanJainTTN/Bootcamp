@@ -1,3 +1,7 @@
+"""
+Write a `find.py` script which impleemnts Linux `find` command Implemnt below options: `-name` `-atime` `-type` `-maxdepth` Example use: To find all ".py" files (not folders) in home directory and 2 level sub-directories which where created recently in last 7 days write find.py ~/ -name "*.py" -type f -atime -7
+"""
+
 import os
 import time
 import argparse

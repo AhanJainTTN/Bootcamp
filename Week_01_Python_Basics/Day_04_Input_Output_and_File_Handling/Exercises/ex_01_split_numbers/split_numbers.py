@@ -1,3 +1,7 @@
+"""
+You have a number.txt, with each line a real number. Write a code to split this file into 3 files as follows: even.txt -- contain all even numbers odd.txt -- all odd number float.txt -- all floating point number. Use with() clause for file handling
+"""
+
 with open(
     "Python Basics/Input-Output and File Handling/main-1/files/numbers.txt", "r"
 ) as numbers_file, open(

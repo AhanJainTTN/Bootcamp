@@ -1,3 +1,14 @@
+"""
+Write a code to filter all sub-strings which have even number of vowels.
+
+Example:
+----------
+Input: "I have an input string which contains even and odd numbers of vowels aA aa aaa ae aeo"
+
+Output: "I an string which contains and odd of aaa aeo"
+"""
+
+
 def count_vowels(word):
 
     # vowel_list = ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U"]

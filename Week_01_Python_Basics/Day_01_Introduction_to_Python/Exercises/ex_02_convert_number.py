@@ -1,5 +1,10 @@
-def to_binary(n):
+"""
+Write a code to print the binary, octal, or hexadecimal representation of a number. 
+Do not use any third-party library.
+"""
 
+
+def to_binary(n):
     ans = ""
 
     while n:
@@ -10,7 +15,6 @@ def to_binary(n):
 
 
 def to_octal(n):
-
     ans = ""
 
     while n:
@@ -24,7 +28,6 @@ hexa_map = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
 
 
 def to_hexadecimal(n):
-
     ans = ""
 
     while n:
@@ -34,8 +37,9 @@ def to_hexadecimal(n):
     return ans
 
 
-n = int(input("Enter a Number: "))
+if __name__ == "__main__":
+    n = int(input("Enter a Number: "))
 
-print("Binary: ", to_binary(n))
-print("Octal: ", to_octal(n))
-print("Hexadecimal: ", to_hexadecimal(n))
+    print("Binary: ", to_binary(n))
+    print("Octal: ", to_octal(n))
+    print("Hexadecimal: ", to_hexadecimal(n))

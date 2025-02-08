@@ -1,3 +1,8 @@
+"""
+Code to generate first n prime numbers.
+"""
+
+
 def is_prime(n):
 
     if n == 1:

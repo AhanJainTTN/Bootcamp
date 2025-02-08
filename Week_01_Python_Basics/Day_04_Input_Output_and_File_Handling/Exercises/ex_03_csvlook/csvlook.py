@@ -1,3 +1,7 @@
+"""
+Without using Python CSV module write a "csvlook` command csvlook should have following features: * [-d DELIMITER] if -`d` option not paased script should be able to guess a seperator * [-q QUOTECHAR] used to parsed colum value parenthesised within QUOTECHAR, if the value not passed should assume default value dboult quote `csvlook` should display data nicely on console in uniform width To project the data `csvlook` script should accept comma seprated colum numbers, e.g -f 3,5,7 should print only column 3, 5 7 --skip-row N to skil first N rows --head N to display only first N rows --tail N to display last N rows
+"""
+
 import argparse
 
 
