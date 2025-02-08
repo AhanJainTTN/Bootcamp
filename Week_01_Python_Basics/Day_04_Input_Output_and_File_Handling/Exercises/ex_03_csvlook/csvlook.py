@@ -5,6 +5,17 @@ Without using Python CSV module write a "csvlook` command csvlook should have fo
 import argparse
 
 
+def guess_delimiter(data):
+    delimiters = (",", "\t", " ", ";", "|")
+    delimiter_counts = {delimiter: 0 for delimiter in delimiters}
+
+    for line in data:
+        for delimiter in delimiters:
+            delimiter_counts[delimiter] += line.count(delimiter)
+
+    return max(delimiter_counts, key=delimiter_counts.get)
+
+
 def parse_csv_line(line, delimiter, quotechar='"'):
     values = []
     current_value = []
@@ -27,7 +38,7 @@ def format_and_display(data):
 
     print("\n")
 
-    column_widths = list(0 for i in range(len(data[0])))
+    column_widths = [0] * len(data[0])
     for row in range(len(data)):
         for col in range(len(data[0])):
             curr_length = len(data[row][col])
@@ -80,6 +91,7 @@ if __name__ == "__main__":
 
     # Optional arguments
     parser.add_argument("-f", type=str, default=None)
+    parser.add_argument("-d", default=None)
     parser.add_argument("--skip-row", type=int, default=0)
     parser.add_argument("--head", type=int, default=None)
     parser.add_argument("--tail", type=int, default=None)
@@ -92,7 +104,8 @@ if __name__ == "__main__":
     head = args.head
     tail = args.tail
     quotechar = args.quotechar
-    selected_cols = list(map(int, args.f.split(","))) if args.f else None
+    selected_cols = list(map(int, args.f.split(",").strip())) if args.f else None
+    delimiter = args.d
 
     # Debug print
     print(f"CSV Path: {csvpath}")
@@ -101,20 +114,18 @@ if __name__ == "__main__":
     print(f"Head: {head}")
     print(f"Tail: {tail}")
     print(f"Quote Character: {quotechar}")
+    print(f"Delimiter: {delimiter}")
 
     with open(csvpath, "r") as csv_file:
-
-        delimiters = (",", "\t", " ", ";")
-        delimiter_counts = {delimiter: 0 for delimiter in delimiters}
 
         raw_data = list()
         for line in csv_file:
             line = line.rstrip("\n")
             raw_data.append(line)
-            for delimiter in delimiters:
-                delimiter_counts[delimiter] += line.count(delimiter)
 
-        delimiter = max(delimiter_counts, key=delimiter_counts.get)
+        if not delimiter:
+            delimiter = guess_delimiter(raw_data)
+
         cleaned_data = [parse_csv_line(row, delimiter, quotechar) for row in raw_data]
 
         data_headers = cleaned_data[0]
