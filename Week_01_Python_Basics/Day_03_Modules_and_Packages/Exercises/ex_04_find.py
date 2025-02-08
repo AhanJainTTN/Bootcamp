@@ -1,5 +1,5 @@
 """
-Write a `find.py` script which impleemnts Linux `find` command Implemnt below options: `-name` `-atime` `-type` `-maxdepth` Example use: To find all ".py" files (not folders) in home directory and 2 level sub-directories which where created recently in last 7 days write find.py ~/ -name "*.py" -type f -atime -7
+Write a `find.py` script which implemnts Linux `find` command Implemnt below options: `-name` `-atime` `-type` `-maxdepth` Example use: To find all ".py" files (not folders) in home directory and 2 level sub-directories which where created recently in last 7 days write find.py ~/ -name "*.py" -type f -atime -7
 """
 
 import os
@@ -20,7 +20,7 @@ def valid_atime(filepath, atime):
 
 def is_match(filename, search_pattern):
 
-    if not search_pattern or filename == search_pattern:
+    if not search_pattern or filename == search_pattern or search_pattern == "*.*":
         return True
 
     base_name, extension = os.path.splitext(filename)
@@ -65,8 +65,6 @@ def find_file(search_pattern, search_type, atime, directory, depth, matches):
 
 if __name__ == "__main__":
 
-    matches = list()
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-name", default=None)
     parser.add_argument("-type", choices=["d", "f"], default=None)
@@ -80,6 +78,8 @@ if __name__ == "__main__":
     max_depth = args.maxdepth
     atime = args.atime
     file_type = args.type
+
+    matches = list()
 
     if valid_dir(directory):
         find_file(search_pattern, file_type, atime, directory, max_depth, matches)
