@@ -4,11 +4,31 @@ Read about itertools.count(start=0, step=1) function which accepts options argum
 
 from dateutil.relativedelta import relativedelta
 import datetime
+from typing import Generator, Optional
 
 
-def datecount(start=None, step="daily"):
+# Generator[yield_type, send_type, return_type]
+# yield_type: The type of values the generator yields
+# send_type: The type of values that can be sent into the generator
+# return_type: The type of value the generator returns when it ends (None if never ending)
+def datecount(
+    start: Optional[datetime.date] = None, step: str = "daily"
+) -> Generator[datetime.date, None, None]:
+    """
+    A generator that yields dates based on a specified step interval.
 
-    # Using None as default otherwise start is evaluated once at function definition and all subsequent calls use the date when the function is defined as default
+    Args:
+        start (Optional[datetime.date]): The starting date (defaults to today if None).
+        step (str): The time interval for incrementing dates.
+                    Options: 'daily', 'alternatively' (every other day), 'weekly', 'monthly', 'quarterly', 'yearly'.
+
+    Yields:
+        datetime.date: The next date based on the specified step.
+
+    Notes:
+        Using None as the default because Python evaluates default arguments only once at function definition. If start=datetime.date.today() were used as a default, it would be set at the time of definition, causing all subsequent calls to use the same initial date instead of dynamically updating to the current date
+
+    """
     if start is None:
         start = datetime.date.today()
 
@@ -21,53 +41,35 @@ def datecount(start=None, step="daily"):
         "yearly": 12,
     }
 
-    # Catch error if wrong step entered
+    # Raise error if wrong step entered
     try:
         step_n = step_dict[step]
     except KeyError:
-        print("Enter correct step")
+        print(f"Invalid step '{step}'. Choose from: {list(step_dict.keys())}")
 
-    while step in ["daily", "alternatively", "weekly"]:
-        yield start
-        start += datetime.timedelta(days=step_n)
+    if step in ["daily", "alternatively", "weekly"]:
+        while True:
+            start += datetime.timedelta(days=step_n)
+            yield start
+    elif step in ["monthly", "quarterly", "yearly"]:
+        while True:
+            start += relativedelta(months=step_n)
+            yield start
 
-    while step in ["monthly", "quarterly", "yearly"]:
-        yield start
-        start += relativedelta(months=step_n)
+
+def main() -> None:
+    """
+    Entry point of the script. Generates and prints dates for different step intervals.
+    """
+    steps = ["daily", "alternatively", "weekly", "monthly", "quarterly", "yearly"]
+
+    for step in steps:
+        print(f"\n{step.capitalize()}...\n")
+        date_gen = datecount(step=step)
+        # _ is a throwaway variable - used when the value is not needed
+        for _ in range(10):
+            print(next(date_gen))
 
 
-# daily generator
-daily_gen = datecount(step="daily")
-print("Every Day...\n")
-for i in range(10):
-    print(next(daily_gen))
-
-# alternative generator
-alt_gen = datecount(step="alternatively")
-print("\nEvery Other Day...\n")
-for i in range(10):
-    print(next(alt_gen))
-
-# weekly generator
-weekly_gen = datecount(step="weekly")
-print("\nEvery Week...\n")
-for i in range(10):
-    print(next(weekly_gen))
-
-# monthly generator
-monthly_gen = datecount(step="monthly")
-print("\nEvery Month...\n")
-for i in range(10):
-    print(next(monthly_gen))
-
-# quarterly generator
-quarterly_gen = datecount(step="quarterly")
-print("\nEvery Quarter...\n")
-for i in range(10):
-    print(next(quarterly_gen))
-
-# yearly generator
-yearly_gen = datecount(step="yearly")
-print("\nEvery Year...\n")
-for i in range(10):
-    print(next(yearly_gen))
+if __name__ == "__main__":
+    main()

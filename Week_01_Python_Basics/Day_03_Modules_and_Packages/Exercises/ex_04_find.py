@@ -5,51 +5,84 @@ Write a `find.py` script which implemnts Linux `find` command Implemnt below opt
 import os
 import time
 import argparse
+from typing import List, Optional
 
 
-def valid_dir(directory):
+def valid_dir(directory: str) -> bool:
+    """
+    Checks if the given directory path is valid.
+    """
     return os.path.isdir(directory)
 
 
-def valid_atime(filepath, atime):
+def valid_atime(filepath: str, atime: Optional[int]) -> bool:
+    """
+    Checks if the file's last access time is within the given threshold.
+
+    Args:
+        filepath (str): The path to the file.
+        atime (Optional[int]): Access time filtering criteria.
+
+    Returns:
+        bool: True if the file meets the access time criteria, False otherwise.
+    """
     if atime is None:
         return True
-    atime_seconds = atime * 86400
+    atime_seconds = atime * 86400  # Convert days to seconds
     return time.time() - os.path.getatime(filepath) <= atime_seconds
 
 
-def is_match(filename, search_pattern):
+def is_match(filename: str, search_pattern: Optional[str]) -> bool:
+    """
+    Checks if a filename matches a search pattern.
 
-    if not search_pattern or filename == search_pattern or search_pattern == "*.*":
+    Args:
+        filename (str): The filename to check.
+        search_pattern (Optional[str]): The pattern to match against.
+
+    Returns:
+        bool: True if the filename matches the pattern, False otherwise.
+    """
+    if not search_pattern or search_pattern == "*.*" or filename == search_pattern:
         return True
 
-    base_name, extension = os.path.splitext(filename)
+    file_base, file_ext = os.path.splitext(filename)
+    search_base, search_ext = os.path.splitext(search_pattern)
 
-    if (
-        search_pattern.endswith(".*")
-        and base_name == os.path.splitext(search_pattern)[0]
-    ):
+    if search_pattern.endswith(".*") and file_base == search_base:
         return True
-    if (
-        search_pattern.startswith("*.")
-        and extension == os.path.splitext(search_pattern)[1]
-    ):
+    if search_pattern.startswith("*.") and file_ext == search_ext:
         return True
 
     return False
 
 
-def find_file(search_pattern, search_type, atime, directory, depth, matches):
+def find_file(
+    search_pattern: Optional[str],
+    search_type: Optional[str],
+    atime: Optional[int],
+    directory: str,
+    depth: int,
+    matches: List[str],
+) -> None:
+    """
+    Recursively searches for files or directories matching the given criteria.
 
-    if depth <= 0:
+    Args:
+        search_pattern (Optional[str]): The pattern to match filenames.
+        search_type (Optional[str]): The type of file to search for ('d' for directories, 'f' for files).
+        atime (Optional[int]): The access time filter in days.
+        directory (str): The directory to search in.
+        depth (int): The maximum depth to search.
+        matches (List[str]): A list to store matching file paths.
+    """
+    if depth < 0:
         return
 
     for filename in os.listdir(directory):
-
         full_path = os.path.join(directory, filename)
 
         if valid_atime(full_path, atime) and is_match(filename, search_pattern):
-
             file_type = "Directory" if os.path.isdir(full_path) else "File"
 
             if search_type == None:
@@ -63,23 +96,25 @@ def find_file(search_pattern, search_type, atime, directory, depth, matches):
             find_file(search_pattern, search_type, atime, full_path, depth - 1, matches)
 
 
-if __name__ == "__main__":
-
+def main() -> None:
+    """
+    Entry point of the script. Parses command-line arguments and searches for files based on criteria.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("-name", default=None)
     parser.add_argument("-type", choices=["d", "f"], default=None)
-    parser.add_argument("-maxdepth", type=int, default=float("inf"))
+    parser.add_argument("-maxdepth", type=int, default=2)
     parser.add_argument("-atime", type=int, default=None)
     parser.add_argument("directory", type=str, default=os.getcwd(), nargs="?")
     args = parser.parse_args()
 
-    directory = args.directory
-    search_pattern = args.name
-    max_depth = args.maxdepth
-    atime = args.atime
-    file_type = args.type
+    directory: str = args.directory
+    search_pattern: Optional[str] = args.name
+    max_depth: int = args.maxdepth
+    atime: Optional[int] = args.atime
+    file_type: Optional[str] = args.type
 
-    matches = list()
+    matches: List[str] = []
 
     if valid_dir(directory):
         find_file(search_pattern, file_type, atime, directory, max_depth, matches)
@@ -91,3 +126,7 @@ if __name__ == "__main__":
             print(match)
     else:
         print("No matches found.")
+
+
+if __name__ == "__main__":
+    main()
