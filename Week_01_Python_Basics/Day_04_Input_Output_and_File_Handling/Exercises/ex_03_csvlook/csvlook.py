@@ -45,7 +45,8 @@ def parse_csv_line(line: str, delimiter: str, quotechar: str = '"') -> List[str]
     for char in line:
         if char == quotechar:  # Toggle quote status
             in_quotes = not in_quotes
-        elif char == delimiter and not in_quotes:  # If not inside quotes, split here
+        # If not inside quotes and delimiter encountered - split
+        elif char == delimiter and not in_quotes:  
             values.append("".join(current_value).strip())
             current_value = []
         else:
