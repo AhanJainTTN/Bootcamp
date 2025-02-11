@@ -29,8 +29,6 @@ class InvalidPANError(Exception):
 
 """
 Here, we have overridden the constructor of the Exception class to accept our own custom arguments pan_details and message.
-
-Then, the constructor of the parent Exception class is called manually with the self.message argument using super().
 """
 
 try:

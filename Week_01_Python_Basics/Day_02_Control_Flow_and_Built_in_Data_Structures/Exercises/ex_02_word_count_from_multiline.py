@@ -18,7 +18,7 @@ from typing import Dict
 
 def word_frequency_counter(text: str) -> Dict[str, int]:
     """
-    Counts the occurrences of each word in the given text using a dictionary.
+    Counts the frequencyt of each word in the given text using a dictionary.
 
     Args:
         text (str): The input string.

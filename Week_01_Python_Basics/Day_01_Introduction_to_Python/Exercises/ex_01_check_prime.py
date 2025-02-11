@@ -6,9 +6,19 @@ Write a Python script to test if a number is prime or not?
 """
 
 
-def is_prime(num):
-    # 1 is neither prime nor composite
-    # since we are checking for primes, we will simply return false
+def is_prime(num: int) -> bool:
+    """
+    Checks whether a given numer is prime or not.
+
+    Args:
+        num (int): The input number to be checked.
+
+    Returns:
+        bool: Prime or not.
+
+    Note:
+        How 1 is handled: 1 is neither prime nor composite and since we are checking for primes, we will simply return False.
+    """
     if num == 1:
         return False
 
@@ -19,6 +29,13 @@ def is_prime(num):
     return True
 
 
-if __name__ == "__main__":
+def main():
+    """
+    Entry point for the script.
+    """
     num = int(input("Enter a Number: "))
     print(is_prime(num))
+
+
+if __name__ == "__main__":
+    main()

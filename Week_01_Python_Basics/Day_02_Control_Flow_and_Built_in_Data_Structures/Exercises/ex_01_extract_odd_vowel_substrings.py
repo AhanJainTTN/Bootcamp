@@ -45,7 +45,7 @@ def count_vowels(word: str) -> int:
 
 def extract_odd_vowel_substring(text: str) -> str:
     """
-    Extracts and returns a space-separated string of words that contain an odd number of vowels.
+    Extracts and returns a space separated string of words that contain odd number of vowels.
 
     Args:
         input_str (str): The input string containing multiple words.

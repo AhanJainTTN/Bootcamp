@@ -1,45 +1,77 @@
 """
-Write a code to print the binary, octal, or hexadecimal representation of a number. 
-Do not use any third-party library.
+Write a code to print the binary, octal, or hexadecimal representation of a number. Do not use any third-party library.
 """
 
 
-def to_binary(n):
+def to_binary(num: int) -> int:
+    """
+    Converts given integer base 10 10 number to binary.
+
+    Args:
+        num (int): The base 10 number to be converted.
+
+    Returns:
+        int: COnverted binary number.
+    """
     ans = ""
 
-    while n:
-        ans = str(n % 2) + ans
-        n = n // 2
+    while num:
+        ans = str(num % 2) + ans
+        num = num // 2
 
     return int(ans)
 
 
-def to_octal(n):
+def to_octal(num: int) -> int:
+    """
+    Converts given integer base 10 number to octal.
+
+    Args:
+        num (int): The base 10 number to be converted.
+
+    Returns:
+        int: COnverted octal number.
+    """
     ans = ""
 
-    while n:
-        ans = str(n % 8) + ans
-        n = n // 8
+    while num:
+        ans = str(num % 8) + ans
+        num = num // 8
 
     return int(ans)
 
 
-hexa_map = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
+def to_hexadecimal(num: int) -> int:
+    """
+    Converts given integer base 10 number to hexadecimal.
 
+    Args:
+        num (int): The base 10 number to be converted.
 
-def to_hexadecimal(n):
+    Returns:
+        int: COnverted hexadecimal number.
+    """
+    # for equivalent hexadecimal lookup
+    hexa_map = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
+
     ans = ""
 
-    while n:
-        ans = str(hexa_map[n % 16]) + ans
-        n = n // 16
+    while num:
+        ans = str(hexa_map[num % 16]) + ans
+        num = num // 16
 
     return ans
 
 
-if __name__ == "__main__":
-    n = int(input("Enter a Number: "))
+def main():
+    """
+    Entry point for the script. Converts an integer to binary, octal and hexadecimal equivalents.
+    """
+    num = int(input("Enter a Number: "))
+    print("Binary: ", to_binary(num))
+    print("Octal: ", to_octal(num))
+    print("Hexadecimal: ", to_hexadecimal(num))
 
-    print("Binary: ", to_binary(n))
-    print("Octal: ", to_octal(n))
-    print("Hexadecimal: ", to_hexadecimal(n))
+
+if __name__ == "__main__":
+    main()
