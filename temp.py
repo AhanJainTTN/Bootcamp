@@ -80,3 +80,24 @@ Steps:
 # Generators: In Python, a generator is a function that returns an iterator that produces a sequence of values when iterated over. Generators are useful when we want to produce a large sequence of values, but we don't want to store all of them in memory at once.
 # When the generator function is called, it does not execute the function body immediately. Instead, it returns a generator object that can be iterated over to produce the values.
 # The yield keyword is used to produce a value from the generator and pause the generator function's execution until the next value is requested.
+
+# my_tuple = (1, 2, 3, [4, 5, 6])
+# my_tuple[3].append(7)
+# print(my_tuple)
+
+# my_tuple = tuple([[1, 2, 3]])
+# print(my_set)
+# print(len(my_tuple))
+
+data = [[1, 2, 3], [4, 5, 6]]
+print(data[0])
+data = [[1, 2, 3], [4, 5, 6]]
+print(data[0])
+
+my_dict = {"a": 1, "b": 2, "c": 3}
+for key in my_dict.keys():
+    print(key)
+
+# works
+list = [1, 2, 3, 4, 5]
+print(list)
