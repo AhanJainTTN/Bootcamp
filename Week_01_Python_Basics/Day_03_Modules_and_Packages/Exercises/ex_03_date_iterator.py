@@ -27,7 +27,6 @@ def datecount(
 
     Notes:
         Using None as the default because Python evaluates default arguments only once at function definition. If start=datetime.date.today() were used as a default, it would be set at the time of definition, causing all subsequent calls to use the same initial date instead of dynamically updating to the current date
-
     """
     if start is None:
         start = datetime.date.today()
