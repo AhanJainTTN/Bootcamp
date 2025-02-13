@@ -6,7 +6,6 @@ from array import arr
 import collections.abc as collabc
 from os.path import abspath
 
-
 # def func():
 #     pass
 

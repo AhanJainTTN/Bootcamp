@@ -26,8 +26,7 @@ this is because parent_main parent directory is automatically added to sys.path 
 # Hello, Ahan from parent/package/subpackage/subpackage_module
 
 """
-however if we try to run this same script using -m flag from anywhere other than parent directory of parent_main
-we will fail because this time the directory we are running the script from i.e. the current working directory gets added
+however if we try to run this same script using -m flag from anywhere other than parent directory of parent_main, we will fail because this time the directory we are running the script from i.e. the current working directory gets added
 to sys.path instead of residing directory
 """
 

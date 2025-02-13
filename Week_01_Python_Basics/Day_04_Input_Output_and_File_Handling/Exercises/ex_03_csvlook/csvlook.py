@@ -46,7 +46,7 @@ def parse_csv_line(line: str, delimiter: str, quotechar: str = '"') -> List[str]
         if char == quotechar:  # Toggle quote status
             in_quotes = not in_quotes
         # If not inside quotes and delimiter encountered - split
-        elif char == delimiter and not in_quotes:  
+        elif char == delimiter and not in_quotes:
             values.append("".join(current_value).strip())
             current_value = []
         else:
@@ -79,8 +79,7 @@ def format_and_display(data: List[List[str]]) -> None:
     )
     separator = "-*-".join("-" * column_widths[i] for i in range(len(headers)))
 
-    formatted_data = formatted_data = [formatted_headers, separator]
-
+    formatted_data = [formatted_headers, separator]
     for row in actual_data:
         formatted_row = " | ".join(
             str(value).ljust(column_widths[i]) for i, value in enumerate(row)
