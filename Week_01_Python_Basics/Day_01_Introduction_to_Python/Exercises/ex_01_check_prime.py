@@ -5,6 +5,8 @@ Write a Python script to test if a number is prime or not?
 - The program should accept a number from the console.
 """
 
+from math import sqrt
+
 
 def is_prime(num: int) -> bool:
     """
@@ -22,7 +24,7 @@ def is_prime(num: int) -> bool:
     if num == 1:
         return False
 
-    for i in range(2, (num // 2) + 1):
+    for i in range(2, (int(sqrt(num))) + 1):
         if num % i == 0:
             return False
 
