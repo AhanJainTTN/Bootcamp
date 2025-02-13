@@ -57,10 +57,10 @@ def number_splitter(input_file_path: str, output_dir: Optional[str] = None):
 
 def main() -> None:
     """
-    Entry point of the scripts.
+    Entry point of the script.
     """
-    input_file_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_01_split_numbers/files/numbers.txt"
-    output_dir = "/Users/ahan/Documents/GitHub/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_01_split_numbers/files"
+    input_file_path = "/home/ahan/Documents/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_01_split_numbers/files/numbers.txt"
+    output_dir = "/home/ahan/Documents/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_01_split_numbers/files"
 
     number_splitter(input_file_path, output_dir)
 

@@ -138,17 +138,19 @@ def load_from_json(json_path):
 # includes the words -{doesnt have} has:attachment larger:1/1M/1K after:2024/8/12 before:2025/8/13
 # from:(ahanjain@gmail.com,ahan.jain@tothenew.com) to:(ahanjain@gmail.com,ahan.jain@tothenew.com) subject:subj itw -dh has:attachment larger:1K
 def gmail_filter_query(
-    email_from: Optional[List[str]] = None,
-    email_to: Optional[List[str]] = None,
-    subject: Optional[str] = None,
-    includes_words: Optional[str] = None,
-    excludes_words: Optional[str] = None,
-    has_attachment: Optional[bool] = None,
-    larger_than: Optional[str] = None,
-    before_yyyy_m_dd: Optional[str] = None,
-    after_yyyy_m_dd: Optional[str] = None,
+    email_from: Optional[List[str]] = "",
+    email_to: Optional[List[str]] = "",
+    subject: Optional[str] = "",
+    includes_words: Optional[str] = "",
+    excludes_words: Optional[str] = "",
+    has_attachment: Optional[bool] = "",
+    larger_than: Optional[str] = "",
+    before_yyyy_m_dd: Optional[str] = "",
+    after_yyyy_m_dd: Optional[str] = "",
 ):
     query = ""
+
+    # return f"from:{email_from} to:{email_to} subject:{subject} {includes_words} {excludes_words} larger:{larger_than} before:{before_yyyy_m_dd} after:{after_yyyy_m_dd}"
 
     if email_from:
         query += "from:" + "(" + email_from + ")" + " "
@@ -173,12 +175,13 @@ def gmail_filter_query(
 
 
 def main():
-    credentials_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/credentials.json"
-    token_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/token.json"
+    credentials_path = "/home/ahan/Documents/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/credentials.json"
+    token_path = "/home/ahan/Documents/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/token.json"
     # If modifying these scopes, delete the file token.json.
     SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
     gmail_service = authenticate_gmail_api(credentials_path, token_path, SCOPES)
+
     # filter_query = gmail_filter_query(
     #     includes_words=".pdf",
     # )
@@ -195,13 +198,13 @@ def main():
         filter_query=filter_query,
     )
 
-    # raw_message_id_dump_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/raw_message_id_dump.json"
+    # raw_message_id_dump_path = "/Users/ahan/Documents/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/raw_message_id_dump.json"
     # dump_to_json(message_ids, raw_message_id_dump_path)
     # message_ids = load_from_json(raw_message_id_dump_path)
     # print(len(message_ids))
 
     message_content = get_message_content(gmail_service, message_ids, user_id="me")
-    # raw_message_content_dump_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/raw_message_content_dump.json"
+    # raw_message_content_dump_path = "/Users/ahan/Documents/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/raw_message_content_dump.json"
     # dump_to_json(message_content, raw_message_content_dump_path)
     # message_content = load_from_json(raw_message_content_dump_path)
     # print(len(message_content))
@@ -212,7 +215,7 @@ def main():
 
     print(f"{len(extracted_email_data)} matches found...\n", extracted_email_data)
 
-    # extracted_email_data_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/extracted_email_data.json"
+    # extracted_email_data_path = "/Users/ahan/Documents/Bootcamp/Week_02_Python_OOPs/Day_02_Python_Class/Exercises/ex_01_gmail_extractor/extracted_email_data.json"
     # print(len(extracted_email_data))
     # dump_to_json(extracted_email_data, extracted_email_data_path)
 

@@ -120,8 +120,8 @@ def main() -> None:
     """
     Entry point of the script. Calls extract_metadata() with file paths.
     """
-    input_file_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_02_py_extractor/files/python_script.py"
-    output_dir = "/Users/ahan/Documents/GitHub/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_02_py_extractor/files/"
+    input_file_path = "/home/ahan/Documents/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_02_py_extractor/files/python_script.py"
+    output_dir = "/home/ahan/Documents/Bootcamp/Week_01_Python_Basics/Day_04_Input_Output_and_File_Handling/Exercises/ex_02_py_extractor/files/"
 
     extract_metadata(input_file_path, output_dir)
 
