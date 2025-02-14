@@ -31,7 +31,7 @@ class InvalidTokenError(Exception):
         return f"Invalid token."
 
 
-class GetCatFacts:
+class MyServer:
     """
     MyServer is a simple HTTP server which can handle GET requests. To simulate internal data processing and retrieval, it gets data from the 'catfact' API.
     """
@@ -81,7 +81,7 @@ class GetCatFacts:
 
     def handle_get_facts(self):
         """
-        Handle get requests when userr requests for facts.
+        Handle get requests when user requests for facts.
         """
         if not self.query_string:
             request_url = os.path.join(self.base_url, "facts")
@@ -102,7 +102,7 @@ class GetCatFacts:
         return response.content
 
 
-cat_fact_obj = GetCatFacts()
+cat_fact_obj = MyServer()
 # print(cat_fact_obj.handle_get("factss"))
 # print(cat_fact_obj.handle_get("breedzs"))
 query_params = {"limit": 2}
