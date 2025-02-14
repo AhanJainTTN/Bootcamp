@@ -16,8 +16,9 @@ from typing import List, Optional
 
 
 class Prime:
-
-    __num = 34
+    """
+    A
+    """
 
     def __init__(self, start: int, stop: int):
         self.start = start
@@ -101,6 +102,9 @@ class Prime:
 
 
 def main():
+    """
+    Entry points of the script.
+    """
 
     obj = Prime(47, 101)
 
