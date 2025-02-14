@@ -52,10 +52,10 @@ class MyServer:
         """
         try:
             self.query_string = self.process_query_params(query_params)
-            if os.path.basename(resource_endpoint).split("?")[0] == "facts":
-                print(self.query_string)
+            if os.path.basename(resource_endpoint) == "facts":
+                # print(self.query_string)
                 return self.handle_get_facts()
-            elif os.path.basename(resource_endpoint).split("?")[0] == "breeds":
+            elif os.path.basename(resource_endpoint) == "breeds":
                 return self.handle_get_breeds()
             raise ResourceNotFoundError
         except ResourceNotFoundError as e:
