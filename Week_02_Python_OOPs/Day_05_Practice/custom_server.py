@@ -102,9 +102,14 @@ class MyServer:
         return response.content
 
 
-cat_fact_obj = MyServer()
-# print(cat_fact_obj.handle_get("factss"))
-# print(cat_fact_obj.handle_get("breedzs"))
-query_params = {"limit": 2}
-print(cat_fact_obj.handle_get("facts", query_params))
-# print(cat_fact_obj.handle_get("breeds"))
+def main():
+    cat_fact_obj = MyServer()
+    # print(cat_fact_obj.handle_get("factss"))
+    # print(cat_fact_obj.handle_get("breedzs"))
+    query_params = {"limit": 2}
+    print(cat_fact_obj.handle_get("facts", query_params))
+    # print(cat_fact_obj.handle_get("breeds"))
+
+
+if __name__ == "__main__":
+    main()
