@@ -90,10 +90,10 @@ class Prime:
         self.start = self.__add__(next_prime)
         return self
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Prime({self.start}, {self.stop})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Prime(start={self.start}, stop={self.stop})"
 
 
@@ -101,7 +101,6 @@ def main():
     """
     Entry points of the script.
     """
-
     obj = Prime(47, 101)
 
     print(f"Number of Prime Numbers Between {obj.start} and {obj.stop}: {len(obj)}")
