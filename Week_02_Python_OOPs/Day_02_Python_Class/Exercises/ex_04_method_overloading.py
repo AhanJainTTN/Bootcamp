@@ -6,6 +6,9 @@ from typing import Optional
 
 
 class MathOperations:
+    """
+    Hanldes method overloading with add function.
+    """
 
     def add_v1(
         self, a: Optional[int] = 0, b: Optional[int] = 0, c: Optional[int] = 0
@@ -19,19 +22,24 @@ class MathOperations:
         return sum(kwargs.values())
 
 
-mathobj = MathOperations()
+def main():
+    mathobj = MathOperations()
 
-# Using Optional Arguments
-print(f"Three Arguments (v1): {mathobj.add_v1(1, 2, 3)}")
-print(f"Two Arguments (v1): {mathobj.add_v1(1, 3)}")
-print(f"Single Argument (v1): {mathobj.add_v1(3)}")
+    # Using Optional Arguments
+    print(f"Three Arguments (v1): {mathobj.add_v1(1, 2, 3)}")
+    print(f"Two Arguments (v1): {mathobj.add_v1(1, 3)}")
+    print(f"Single Argument (v1): {mathobj.add_v1(3)}")
 
-# Using *args
-print(f"Three Arguments (v2): {mathobj.add_v2(1, 2, 3)}")
-print(f"Two Arguments (v2): {mathobj.add_v2(1, 3)}")
-print(f"Single Argument (v2): {mathobj.add_v2(3)}")
+    # Using *args
+    print(f"Three Arguments (v2): {mathobj.add_v2(1, 2, 3)}")
+    print(f"Two Arguments (v2): {mathobj.add_v2(1, 3)}")
+    print(f"Single Argument (v2): {mathobj.add_v2(3)}")
 
-# Using **kwargs
-print(f"Three Arguments (v3): {mathobj.add_v3(a=1, b=2, c=3)}")
-print(f"Two Arguments (v3): {mathobj.add_v3(a=1, b=3)}")
-print(f"Single Argument (v3): {mathobj.add_v3(a=3)}")
+    # Using **kwargs
+    print(f"Three Arguments (v3): {mathobj.add_v3(a=1, b=2, c=3)}")
+    print(f"Two Arguments (v3): {mathobj.add_v3(a=1, b=3)}")
+    print(f"Single Argument (v3): {mathobj.add_v3(a=3)}")
+
+
+if __name__ == "__main__":
+    main()
