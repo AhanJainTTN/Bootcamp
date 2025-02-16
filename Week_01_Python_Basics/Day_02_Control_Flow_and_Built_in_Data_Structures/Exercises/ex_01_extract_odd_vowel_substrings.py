@@ -33,14 +33,9 @@ def count_vowels(word: str) -> int:
     Note:
         Why use set instead of list for storing the vowels: The "in" keyword has different time complexities depending on the container type. Using a set provides O(1) average time complexity for lookups, whereas a list would be O(n).
     """
-    vowel_set: Set[str] = {"a", "e", "i", "o", "u", "A", "E", "I", "O", "U"}
-    vowel_count = 0
-
-    for char in word:
-        if char in vowel_set:
-            vowel_count += 1
-
-    return vowel_count
+    return sum(
+        1 for char in word if char in {"a", "e", "i", "o", "u", "A", "E", "I", "O", "U"}
+    )
 
 
 def extract_odd_vowel_substring(text: str) -> str:
@@ -53,8 +48,7 @@ def extract_odd_vowel_substring(text: str) -> str:
     Returns:
         str: A new string containing only words with an odd number of vowels.
     """
-    ans = " ".join(word for word in text.split() if count_vowels(word) % 2 != 0)
-    return ans
+    return " ".join(word for word in text.split() if count_vowels(word) % 2 != 0)
 
 
 def main() -> None:
