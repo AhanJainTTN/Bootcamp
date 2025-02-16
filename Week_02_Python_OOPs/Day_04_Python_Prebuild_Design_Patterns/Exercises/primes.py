@@ -17,7 +17,7 @@ from typing import List, Optional
 
 class Prime:
     """
-    A
+    A class for generating and working with prime numbers.
     """
 
     def __init__(self, start: int, stop: int):
@@ -42,13 +42,11 @@ class Prime:
         Returns a list of first n prime numbers after start.
         """
         start = self.start + 2 if self.is_prime(self.start) else self.start
-        prime_count = 0
         primes = list()
-        while prime_count < n:
+        while len(primes) < n:
             if self.is_prime(start):
                 primes.append(start)
-                prime_count += 1
-            start += 1 if start == 2 else 2
+            start += 1
 
         return primes
 
@@ -69,16 +67,12 @@ class Prime:
         Returns all prime numbers between start and stop.
         """
         primes = list()
-        for i in range(self.start + 1, self.stop):
-            if self.is_prime(i):
-                primes.append(i)
+        return [i for i in range(self.start + 1, self.stop) if self.is_prime(i)]
 
-        return primes
-
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.primes_between())
 
-    def __add__(self, next_prime):
+    def __add__(self, next_prime: int) -> int:
         curr_prime = (
             self.start if self.is_prime(self.start) else self.primes_after(1)[0]
         )
@@ -87,18 +81,20 @@ class Prime:
         while next_prime > 0:
             if self.is_prime(start):
                 next_prime -= 1
-            start += 1 if start == 2 else 2
+                curr_prime = start
+            start += 2
 
-        return start
+        return curr_prime
 
-    def __iadd__(self, next_prime):
-        return Prime(self.__add__(next_prime), self.stop)
+    def __iadd__(self, next_prime: int):
+        self.start = self.__add__(next_prime)
+        return self
 
     def __str__(self):
-        return f"Start: {self.start}\nStop: {self.stop}"
+        return f"Prime({self.start}, {self.stop})"
 
     def __repr__(self):
-        return f"Start: {self.start}\nStop: {self.stop}"
+        return f"Prime(start={self.start}, stop={self.stop})"
 
 
 def main():
