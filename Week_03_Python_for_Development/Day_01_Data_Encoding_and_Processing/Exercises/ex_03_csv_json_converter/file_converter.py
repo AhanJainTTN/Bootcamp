@@ -18,6 +18,7 @@ Write a simple function using StringIO which can transalte a "dict" into a comma
 import csv
 import json
 from io import StringIO
+from typing import Dict, Any
 
 
 def csv_to_json(csv_path: str, json_path: str):
@@ -65,7 +66,7 @@ def json_to_csv(json_path: str, csv_path: str):
         writer.writerows(data)
 
 
-def dict_to_csv_string(data):
+def dict_to_csv_string(data: Dict[Any, Any]) -> str:
     """
     Converts a dictionary into a comma-separated string using StringIO.
     """
