@@ -21,7 +21,7 @@ from io import StringIO
 from typing import Dict, Any
 
 
-def csv_to_json(csv_path: str, json_path: str):
+def csv_to_json(csv_path: str, json_path: str) -> None:
     """
     Reads a CSV file and converts it into a JSON file, where each line is a valid JSON equivalent to a row in CSV.
     """
@@ -44,7 +44,7 @@ def csv_to_json(csv_path: str, json_path: str):
         )
 
 
-def json_to_csv(json_path: str, csv_path: str):
+def json_to_csv(json_path: str, csv_path: str) -> None:
     """
     Reads a JSON file where each line is a valid JSON and converts it into a CSV file.
     Assumes JSON objects are not nested.
@@ -96,7 +96,7 @@ def dict_to_csv_string(data: Dict[Any, Any]) -> str:
     return result
 
 
-def main():
+def main() -> None:
     # File paths
     csv_path_1 = "/Users/ahan/Documents/GitHub/Bootcamp/Week_03_Python_for_Development/Day_01_Data_Encoding_and_Processing/Exercises/ex_03_csv_json_converter/files/sample.csv"
     json_path_1 = "/Users/ahan/Documents/GitHub/Bootcamp/Week_03_Python_for_Development/Day_01_Data_Encoding_and_Processing/Exercises/ex_03_csv_json_converter/files/csv_to_json.json"
