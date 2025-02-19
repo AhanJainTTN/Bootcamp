@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import pandas as pd
 from typing import List, Dict
+import re
 
 # Constants
 PAGE_LIMIT = 7
@@ -27,29 +28,28 @@ COLLECTIONS_URL = "https://fermosaplants.com/collections/sansevieria?page={}"
 curr_count = 1
 
 
-#  pattern = r"\d+\.\s*([\w\s-]+)"
+# \d\.[\s ]?([\w]*[\s ]?)*
+# \d+\.[\s ]?([A-Za-z]*[\s ]?)*
+# \d+\.[\s ]?([A-Za-z]*[\s ]?)*.*
+# \d+\.[  ]?([A-Za-z]*[\s ]?)*.*
+# \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
+# \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
+# \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
+# \d+\.[ \\u00A0 ]*[A-Za-z]+([  \\u00A0]*[A-Za-z]*)*
 def get_names(product_link):
     source = requests.get(product_link).text
     soup = BeautifulSoup(source, "lxml")
-    # print(soup.prettify())
 
     product_details = soup.find("div", class_="tab-pd-details")
-    # print(product_details.prettify())
     product_desc = product_details.find("div", class_="product-desc").text
-    print(product_desc.strip())
-    # for li in product_desc.find_all("li"):
-    #     if "About Combo Offer" in li.text:
-    #         combo_text = li.text.split("-")[-1].strip()
-    #         print(combo_text)
-    #         plants = [plant.strip() for plant in combo_text.split(",")]
-    # print(plants)
-    # try:
-    #     for item in product_desc.find_all("li", class_=None)[1]:
-    #         # print(item.text.strip())
-    #         pass
-    # except Exception as e:
-    #     print("Cannot process combo name.")
-    #     print(product_desc.prettify())
+    regex = re.compile(r"\d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*")
+    # regex = re.compile(r"\d+\.")
+    matches = [
+        match.group().split(".")[1].strip().title()
+        for match in regex.finditer(product_desc)
+    ]
+    print(matches)
+    print("")
 
 
 def scrape_page(page_number: int) -> List[Dict[str, str]]:
@@ -127,10 +127,10 @@ def dump_to_csv(csv_path: str, data: List[Dict[str, str]]) -> None:
 
 def main() -> None:
     """Entry point for the script."""
-    # get_names(
-    #     "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-offer-of-6"
-    # )
-    scraped_data = process_pages()
+    get_names(
+        "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-offer-of-6"
+    )
+    # scraped_data = process_pages()
 
     # csv_path = "/home/ahan/Documents/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_02_fermosa_scraper/files/results.csv"
     # dump_to_csv(csv_path, scraped_data)
