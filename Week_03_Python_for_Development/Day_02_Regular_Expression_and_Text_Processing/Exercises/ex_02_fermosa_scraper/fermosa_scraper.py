@@ -36,13 +36,16 @@ curr_count = 1
 # \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
 # \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
 # \d+\.[ \\u00A0 ]*[A-Za-z]+([  \\u00A0]*[A-Za-z]*)*
+# \d+\.[ ]*[\w]+[ ]*(?!\d)[\w]*
+# \d+\.[  ]*[\w]+([  ]*(?!\d)[\w]*)*
+# \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*
 def get_names(product_link):
     source = requests.get(product_link).text
     soup = BeautifulSoup(source, "lxml")
 
     product_details = soup.find("div", class_="tab-pd-details")
     product_desc = product_details.find("div", class_="product-desc").text
-    regex = re.compile(r"\d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*")
+    regex = re.compile(r"\d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*")
     # regex = re.compile(r"\d+\.")
     matches = [
         match.group().split(".")[1].strip().title()
@@ -127,10 +130,10 @@ def dump_to_csv(csv_path: str, data: List[Dict[str, str]]) -> None:
 
 def main() -> None:
     """Entry point for the script."""
-    get_names(
-        "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-offer-of-6"
-    )
-    # scraped_data = process_pages()
+    # get_names(
+    #     "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-offer-of-6"
+    # )
+    scraped_data = process_pages()
 
     # csv_path = "/home/ahan/Documents/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_02_fermosa_scraper/files/results.csv"
     # dump_to_csv(csv_path, scraped_data)
