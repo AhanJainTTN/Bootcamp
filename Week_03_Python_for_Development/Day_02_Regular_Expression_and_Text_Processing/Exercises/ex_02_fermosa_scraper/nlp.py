@@ -1,0 +1,545 @@
+import spacy
+from spacy import displacy
+
+NER = spacy.load("en_core_web_sm")
+
+raw_text = r"""Combo 1, Page: 1: Sansevieria Combo Offer Of 6 (A)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (A) - Pups of-1. Mini Boncel, 2. Francisii, 3. Silver steel, 4. Kirkii silver blue, 5. Subspicata, 6. Boncel Small Size
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 2, Page: 1: Sansevieria Combo Offer Of 6 (L)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (L) - ﻿1. Coppertone, 2. Silver Siam, 3. Silver Princess, 4.Trifaciata Robusta, 5. Fernwood, 6. Gracilis Large
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 3, Page: 1: Sansevieria Combo Offer Of 6 (B)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (B) - ﻿Pups of-1. Cylindrica, 2. Hybrid Delhi, 3. Motomo, 4. Silver Nymph, 5. Gracilis, 6. Tiger
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 4, Page: 1: Sansevieria Combo Offer Of 6 (H)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (H) - ﻿1. Coppertone, 2. Fischeri singularis, 3. Kirkii Silver Blue, 4. Midnight Fountain, 5. Hybrid Delhi Large, 6. Francisii
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 5, Page: 1: Sansevieria Combo Offer Of 5 (D)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (D) - ﻿1. Kirkii Silver Blue, 2. Patens, 3.Fernwood, 4.Whalefin, 5.Coppertone
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 6, Page: 1: Sansevieria Combo Offer Of 6 (K)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (K) - ﻿1. Parva, 2. Lady Charm pup, 3. Cylindrica, 4. Mini Boncel, 5. Francisii, 6. Subspicata
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 7, Page: 1: Sansevieria Combo Offer Of 6 (F)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (F) - Pups of-1. Silver Nymph, 2. Gracilis, 3. Silver steel, 4. Parva, 5. Subspicata, 6. Crocodile rock
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 8, Page: 1: Sansevieria Combo Offer Of 6 (G)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (G) - ﻿Pups of-1. Cylindrica, 2. Gracilis, 3. Kirkii Silver Blue, 4. Parva, 5. Subspicata, 6. Mini Boncel
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 9, Page: 1: Sansevieria Combo Offer Of 6 (C)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (C) - ﻿Pups of-1. Silver Nymph, 2. Tiger, 3. Moto, 4. Silver Steel, 5. Motomo, 6. Hybrid Delhi
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 10, Page: 1: Sansevieria Combo Offer Of 3 (N)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (N) - 1. Dancing Lady; 2. Aff Marsha, 3. Hahnii Gaster
+
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 11, Page: 1: Sansevieria Combo Offer Of 4 (M)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (M) - 1. Masoniana Yellow Variegated; 2. Francisii White variegated, 3. Sulcata Yellow Variegated, 4. Boncel Yellow Variegated. 
+
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 12, Page: 1: COMBO #103 (10 sansevieria)
+
+Combo of 10 sansevieria 
+1. Cleopatra 2. Sindoro 3. Pagoda4. Silver crown5. Tower6. Midnight fountain 7. Nalika 8. Lobel Kenya 9. Andaman 10. Spoon leaf
+Combo 13, Page: 1: Sansevieria Combo Offer Of 4 (P)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (P) - ﻿1. Sansevieria Pagoda pup, 2. Silver Boncel, 3.Cleopatra, 4. Francisii White Variegated.
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 14, Page: 1: Sansevieria Combo Offer Of 2 (Q)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (Q) - 1. Whitney, 2. Silver Siam
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 15, Page: 1: Sansevieria Combo Offer Of 6 (J)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (J) - ﻿1. Moto, 2. Lady Charm, 3. Gracilis, 4. Crocodile rock, 5. Silver Nymph, 6. Silver Steel
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 16, Page: 1: Sansevieria Combo Offer Of 4 (I)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (I) - 1. Arborescens, 2. Bagamoyensis, 3. Hybrid Delhi, 4. Francisii.
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 17, Page: 1: Sansevieria Combo Offer Of 6 (E)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (E) - ﻿Pups of-1. Moto, 2. Mini Boncel, 3. Ballyi, 4. Cylindrica, 5. Hybrid Delhi, 6. Francisii
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 18, Page: 2: Sansevieria Combo Offer Of 3 (S)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (S) - 1. Mini Boncel, 2. Pinguicula, 3. Mini Ballyi
+
+
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 19, Page: 2: Sansevieria Francisii Combo of 3
+
+Scientific Name- Sansevieria Francisii
+
+
+About Sansevieria Francisii Combo - Pups of- ﻿﻿1. Francisii Yellow Variegated; 2. Francisii Green; 3. Francisii White Variegated.
+Size- 3-4 inch height
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 20, Page: 2: Sansevieria Combo Offer Of 3 (Z)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (Z) - 1. Baicularis, 2. Fischeri, 3. Canaliculata
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 21, Page: 2: Sansevieria Combo Offer Of 5 (T)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (T) - Pups of-1. Subspicata,  2. Moonshine , 3. Superba, 4. Zeylanica , 5. Robusta
+Comes bare root.
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 22, Page: 2: Sansevieria Combo Offer Of 7 (V)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (A) - Pups of-1. MIDNIGHT FOUNTAIN 2. KATANA, 3. FERNWOOD , 4. UGANDA BLACK , 5. SILVER STEEL , 6. MOTO, 7. SULCATA
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 23, Page: 2: #115 Combo of 4 large Sansevieria
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (#115) - 1. Sulcata var, 2. Fern wood, 3. Pearsonii, 4. Fischeri
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 24, Page: 2: Sansevieria Combo Offer Of 3 (O)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (0) - 1. Black Gold Compacta; 2. Lake sibaya, 3. Futura Gold
+
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 25, Page: 2: #117 Sansevieria Combo Offer Of 5
+
+COMBO of 5 Dwarf Sansevieria
+
+
+
+1. Jade Marginata
+2. Golden Hahnii
+3. Twisted Sisters
+4. Night Owl
+5. Black Jade
+Combo 26, Page: 2: Sansevieria Combo of 2 Beautiful Plants
+
+Sansevieria Combo of 2 Beautiful Plants1. subspicata 2. Nalika
+Rs 450 - Including shipping
+Combo 27, Page: 3: #118 Sansevieria COMBO OF 2 PLANTS
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (#118) - 1. Gold dust 2. HI Color 
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 28, Page: 3: COMBO #105 (combo of 4 plants)
+
+Sansevieria combo of 4 plants
+
+
+
+1. Star dust
+2. Phanphet
+3. Tower
+4. Ravana
+Combo 29, Page: 3: Sansevieria Combo of 7 Different
+
+Sansevieria Combo of 7 Different
+
+1. Pagoda
+2. Nalika
+3. Fighter
+4. Sweet celery
+5. Tower
+6. Lobel Kenya
+7. Sindoro
+
+Rs 1250/-
+Combo 30, Page: 3: Sansevieria Combo of 4 Plants
+
+Sansevieria Combo of 4 Plants
+1. Hawaiian Star 2. Patens3. Fischeri4. KATANA
+Rs 999/- incl shipping
+Combo 31, Page: 3: Sansevieria Combo Offer Of 2 (R)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (R) - 1. Ballyi, 2. Mini Ballyi
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 32, Page: 3: #119 COMBO OF 3 SANSEVIERIA
+
+Sansevieria Combo Of 3 Plants
+
+
+
+1. Chao Pharya
+2. Benthieng
+3. Nakhon luang
+Combo 33, Page: 3: #116 Combo of 4 Popular Indonesian hybrids
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (4) - 1. Prima, 2. Prabhu, 3. Jatayu, 4. Tower
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 34, Page: 4: #115 Combo of 4 large Sansevieria
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (#115) - 1. Sulcata var, 2. Fern wood, 3. Pearsonii, 4. Fischeri
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 35, Page: 4: Sansevieria Combo (X) Offer Of 5 Variegated sansevieria
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (X) - 
+1. Florida H13 var
+2. Uganda black var
+3. Fernwood var
+4. Sulcata var
+5. Stella var
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 36, Page: 4: Sansevieria Combo Offer Of 6 (W)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (W) - Pups of-1. CYLINDRICA  2. BONCEL , 3. UGANDA BLACK , 4. WHALEFINE GREEN, 5. FERNWOOD, 6. COPPERTONE 
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 37, Page: 4: #112 COMBO OF FIVE RARE SANSEVIERIA TRIFASCIATA of NEW GENERATION
+
+Combo of five rare sansevieria trifasciata plants.
+
+(New Generation Trifasciata plants not easily available in the country. Imported by Fermosa Plants and now grown at our farm to make it available for plant lovers and collectors of rare sansevieria). Limited stocks available.
+
+1. Mutant Moonshine
+2. Moonshine Variegated 
+3. Alslaam 
+4. Black Sword aka Green Arrow 
+5. Nelsonni banded 
+
+All are hardy variety which are easy to maintain.
+Combo 38, Page: 4: #110 Sansevieria COMBO OF 7 Plants
+
+Sansevieria COMBO OF 7 Plants
+
+
+
+1. Robo
+2. Boncel var
+3. Platinum cross
+4. Marsha anjani
+5. Fighter
+6. Nilin
+7. Silver boncel
+
+One of the most popular combos by Fermosa Plants.
+Combo 39, Page: 4: COMBO #104 ( Combo of 5 Sansevieria mature pups)
+
+Combo of 5 Sansevieria mature pups
+
+
+
+
+
+1. Aslaam
+2. Moonshine mutant
+3. Nelsonii banded
+4. Green arrow
+5. Moonshine var
+
+
+
+Rs 2000
+Combo 40, Page: 4: Sansevieria Combo of 3 Beautiful Plants
+
+Sansevieria Combo of 3 Beautiful Plants
+1. Sindoro 2. Silver Boncel 3. Boncel Ming manee
+Rs 675. Including shipping
+Combo 41, Page: 4: #120 COMBO OF 6 Sansevieria
+
+COMBO OF 6 Sansevieria
+
+
+1. Parbhu
+2. Sindoro
+3. Jatayu
+4. Vienna
+5. Lady charm
+6. Kitonga
+Combo 42, Page: 5: #119 COMBO OF 5 SANSEVIERIA
+
+COMBO OF 5 SANSEVIERIA
+
+
+1. BAO DAM
+2. ADVENTUS
+3. BLACK ANTS
+4. JATAYU
+5. BLACK MLANDI
+Combo 43, Page: 5: #114 COMBO OF 3 SANSEVERIA
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (#114) - 1. Green Arrow, 2. Black Gold compacta, 3. Nelsonii banded
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 44, Page: 5: Sansevieria Combo Offer Of 4 (Y)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (Y) - 1. STAR DUST, 2. SENGUKUNI, 3. RAVANA, 4. PHANPHET
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 45, Page: 5: Sansevieria Combo (X) Offer Of 5 Variegated sansevieria
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (X) - 
+1. Florida H13 var
+2. Uganda black var
+3. Fernwood var
+4. Sulcata var
+5. Stella var
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 46, Page: 5: COMBO OF Eight Indonesian Hybrids of Sansevieria named on Hindu Gods and Godesses and from Hindu Mythology
+
+COMBO OF Eight Indonesian Hybrids of Sansevieria named on Hindu Gods and Goddesses or Indian Mythology mainly Ramayana and Mahabharata 
+
+
+
+1. Aswathama 
+
+2. Sri Rama
+
+3. Sinta named on Goddness Seeta of Ramayana
+
+4. Jatayu
+
+5. Ravana ex Thailand
+
+6. Prabhu
+
+7.  Rahwana ex Indonesia and that’s how Ravana is spelled there. Both Ravana of Thai origin and Rahwana ex Indonesia have completely different characteristics
+8. Sengkuni or Shakuni of Mahabharatha
+Combo 47, Page: 5: Sansevieria Combo Offer Of 6 (U)
+
+Scientific Name- Sansevieria 
+
+
+About Combo Offer (U) - -1. ERYTHERAE, 2. FISCHERI , 3. PATENS, 4. SULCATA, 5. B10, 6. MIDNIGHT FOUNTAIN 
+
+Images are for reference purposes only. Actual product may vary in shape or appearance based on climate, age, height, etc.
+Please Note: Succulents change colour throughout the year and the plants we deliver can sometimes look different from the pictures.
+Combo 48, Page: 5: COMBO #113 COMBO OF 5 SANSEVIERIA
+
+COMBO OF 5 SANSEVIERIA
+
+
+
+1. BAO DAM
+2. ADVENTUS
+3. BLACK ANTS
+4. JATAYU
+5. BLACK MLANDI
+Combo 49, Page: 5: #111 Sansevieria COMBO OF 4 Plants
+
+Sansevieria COMBO OF 4 Plants
+
+
+
+1. Sawasdee
+2. Robo
+3. Platinum cross
+4. Sindoro
+Combo 50, Page: 5: COMBO #107 ( combo of 4 Plants)
+
+Combo of 4 beautiful sansevieria
+
+
+
+1. Sheila
+2. Adventus
+3. Rahwana
+4. Maya
+Combo 51, Page: 5: COMBO #106 (4 beautiful Sansevieria)
+
+Combo of 4 beautiful Sansevieria
+
+
+
+1. Robo
+2. Luna
+3. Bao dam
+4. Star gate
+Combo 52, Page: 5: SEVEN High Value Sansevieria Plants as Combo
+
+SEVEN High Value Sansevieria Plants as Combo
+
+
+
+All Indonesian hybrids
+
+
+1.Sinta (named on Mata Seeta of Ramayana. In Indonesia SEETA is spelt as SINTA).
+
+2.Ashwathama
+3.Sengkuni (named after SHAKUNI of Mahabharata)
+4.Prabu
+5.Jatayu
+6.Rahwana (Indonesian version of Ravan)
+7.Ravana (Thai Hybrid)
+
+
+One Thai Hybrid FIGHTER and an Uganda Black Var offshoot of good size FREE with the above set.
+Combo 53, Page: 5: Combo #102 (5 BEAUTIFUL SANSEVIERIA PUPS)
+
+Combo of 5 BEAUTIFUL SANSEVIERIA PUPS
+
+
+
+1. Black Ants
+2. Nelsonii banded
+3. Black Gold compacta
+4. Green arrow
+5. Moonshine mutant
+Combo 54, Page: 6: Sansevieria Combo of 2 Beautiful Plants Black ants and Silver Boncel
+
+Sansevieria Combo of 2 Beautiful Plants1. Black ants 2. Silver BoncelIncluding shipping
+Combo of two rare and sansevieria *Black Ants*A Thai Hybrid by the famous breeder Charoon Sak, of Bangkok, this is a miniature one with impressive leaves formation which are dark green/blackish in color. A mature plant of Black Ants is much costlier in Thailand but since we have propagated same in Fermosa Farms, we supply it much cheap to India’s vast Sansevieria Crazy Community.*Silver Boncel* Silver Boncel has always been very popular with collectors. A beautiful Boncel variety which multiples fast and forms into beautiful cluster, is part of this combo.
+"""
+
+text1 = NER(raw_text)
+for word in text1.ents:
+    print(word.text, word.label_)
