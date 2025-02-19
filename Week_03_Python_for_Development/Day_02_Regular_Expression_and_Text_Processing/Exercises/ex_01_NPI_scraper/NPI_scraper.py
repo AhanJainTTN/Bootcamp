@@ -47,9 +47,12 @@ def process_all_ids(npi_ids: List[int]) -> List[Dict[str, str]]:
     """Takes in a list of NPI IDs and returns corresponding data as a list of dictionaries."""
     extracted_data = list()
     for npi_id in npi_ids:
-        extracted_data.append(process_id(npi_id))
+        npi_data = process_id(npi_id)
+        if npi_data is not None:
+            extracted_data.extend(npi_data)
 
     return extracted_data
+    # return [process_id(npi_id) for npi_id in npi_ids]
 
 
 def load_ids(id_path: str) -> List[int]:
@@ -57,6 +60,7 @@ def load_ids(id_path: str) -> List[int]:
     with open(id_path, "rb") as file:
         npi_ids = pickle.load(file)
         print("Loaded all NPI IDs.")
+
         return npi_ids
 
 
@@ -69,12 +73,12 @@ def dump_to_json(json_path, data) -> None:
 
 def main() -> None:
     """Entry point of the script."""
-    id_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_01_NPI_scraper/files/npi_ids.pkl"
+    id_path = "/home/ahan/Documents/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_01_NPI_scraper/files/npi_ids.pkl"
     npi_ids = load_ids(id_path)
 
     extracted_data = process_all_ids(npi_ids)
 
-    json_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_01_NPI_scraper/files/results.json"
+    json_path = "/home/ahan/Documents/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_01_NPI_scraper/files/results.json"
     dump_to_json(json_path, extracted_data)
 
 
