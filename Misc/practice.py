@@ -395,7 +395,7 @@ print(t, id(t))
 # raises TypeError in script
 t = 1, 2, [3, 4]
 print(t)
-t[2] += [7, 8]
+# t[2] += [7, 8]
 print(t)
 
 # works in real time interpreter - why - += invokes __iadd__ method of the list which extends the existing list. However this __iadd__ returns self i.e. the calling objects instance and t[2] gets the same address it originally had but an error is raised as this is still an attempt to modify the memoey address even if it is the same address
