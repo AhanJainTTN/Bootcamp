@@ -709,3 +709,16 @@ print(f"Same Memory Address: {id(db_1) == id(db_2)}")
 # print(f"Memory Address (db_1): {id(db_1)}")
 # print(f"Memory Address (db_2): {id(db_2)}")
 # print(f"Same Memory Address: {id(db_1) == id(db_2)}")
+
+
+class A:
+    my_str = "I belong to class."
+
+    def __init__(self):
+        self.my_str = "I belong to object."
+        pass
+
+
+a = A()
+print(A.my_str)
+print(a.my_str)  # if no my_str for instance, refers to class my_str
