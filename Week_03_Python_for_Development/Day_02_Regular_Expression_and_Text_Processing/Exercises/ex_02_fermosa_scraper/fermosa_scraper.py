@@ -20,6 +20,7 @@ from urllib.parse import urljoin
 import pandas as pd
 from typing import List, Dict
 import re
+from typing import Dict, List
 
 # Constants
 PAGE_LIMIT = 7
@@ -38,24 +39,105 @@ curr_count = 1
 # \d+\.[ \\u00A0 ]*[A-Za-z]+([  \\u00A0]*[A-Za-z]*)*
 # \d+\.[ ]*[\w]+[ ]*(?!\d)[\w]*
 # \d+\.[  ]*[\w]+([  ]*(?!\d)[\w]*)*
-# \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*
-def get_names(product_link):
+# Combo Names: \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*
+# Scientific Names v2: Scientific[ ]Name[-][  ]*[\w'"]+([  ]*[\w'"]*)*
+# (?:Scientific[ ]Name[-][  ]*)[\w'"]+([  ]*[\w'"]*)*
+
+
+def build_dataframe(plant_data: List[Dict[str, str]]):
+    """Takes in plant data and builds a dataframe."""
+    pass
+
+
+def extract_combo_names(product_link):
+    """Takes a product link of a combo and returns all the names in the combo."""
     source = requests.get(product_link).text
     soup = BeautifulSoup(source, "lxml")
 
     product_details = soup.find("div", class_="tab-pd-details")
     product_desc = product_details.find("div", class_="product-desc").text
     regex = re.compile(r"\d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*")
-    # regex = re.compile(r"\d+\.")
     matches = [
         match.group().split(".")[1].strip().title()
         for match in regex.finditer(product_desc)
     ]
-    print(matches)
-    print("")
+    return matches
 
 
-def scrape_page(page_number: int) -> List[Dict[str, str]]:
+def extract_scientific_name(product_link):
+    """Takes a product link of a combo and returns the scientific name of the plant."""
+    pass
+
+
+def extract_common_name(product_card):
+    """Takes the source html and extracts the common name of the plant."""
+    return product_card.find("h4", class_="title-product").text.strip()
+
+
+def extract_url(product_card):
+    """Takes the source html and extracts the url of the product page."""
+    product_title = product_card.find("h4", class_="title-product")
+    product_link = product_title.find("a")["href"]
+
+    return urljoin(BASE_URL, product_link)
+
+
+def extract_price(product_card):
+    """Takes the source html and extracts the price of the plant."""
+    return product_card.find("p", class_="price-product").text.strip()
+
+
+def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
+    """Scrapes a single page and returns a list of product details."""
+    request_url = COLLECTIONS_URL.format(page_number)
+    source = requests.get(request_url).text
+    soup = BeautifulSoup(source, "lxml")
+
+    page_data = list()
+    for product_card in soup.find_all("div", class_="product-item-v5"):
+        plant_url = extract_url(product_card)
+        plant_common_name = extract_common_name(product_card)
+        plant_price = extract_price(product_card)
+        plant_scientific_name = plant_common_name
+        plant_common_names = []
+
+        if "combo" in plant_common_name.lower():
+            plant_scientific_name = extract_scientific_name(plant_url)
+            plant_combo_names = extract_combo_names(plant_url)
+
+        source = requests.get(product_link).text
+        soup = BeautifulSoup(source, "lxml")
+
+        product_details = soup.find("div", class_="tab-pd-details")
+        product_desc = product_details.find("div", class_="product-desc").text
+        # product_details = soup.find("div", class_="tab-pd-details")
+        # product_desc = product_details.find("div", class_="product-desc").text
+
+        if combo:
+            # print("Scientific Name (Combo - Default): Sansevieria")
+            # global curr_count
+            # print(f"Combo {curr_count}, Page: {page_number}: {product_title}\n")
+            # curr_count += 1
+            # get_names(product_link)
+            pass
+        else:
+            print(f"Normal Name: {product_title}")
+            try:
+                regex = re.compile(r"""Sansevieria[  ]*[\w'"]+([  ]*[\w'"]*)*""")
+                scientific_name = regex.search(product_desc)
+                print(f"Scientific Name: {scientific_name.group()}")
+            except AttributeError:
+                print(f"Scientific Name (Default): Sansevieria")
+
+        extracted_data["Combo"] = combo
+        page_data.append(extracted_data)
+
+    # print(f"Finished scraping page {page_number}.")
+
+    return page_data
+
+
+def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
     """Scrapes a single page and returns a list of product details."""
     request_url = COLLECTIONS_URL.format(page_number)
     source = requests.get(request_url).text
@@ -65,7 +147,7 @@ def scrape_page(page_number: int) -> List[Dict[str, str]]:
     for product_card in soup.find_all("div", class_="product-item-v5"):
 
         extracted_data = {
-            "Name": "",
+            "Title": "",
             "URL": "",
             "Price": "",
             "Combo": "",
@@ -81,19 +163,50 @@ def scrape_page(page_number: int) -> List[Dict[str, str]]:
         product_link = urljoin(BASE_URL, product_link)
         extracted_data["URL"] = product_link
 
+        source = requests.get(product_link).text
+        soup = BeautifulSoup(source, "lxml")
+
+        product_details = soup.find("div", class_="tab-pd-details")
+        product_desc = product_details.find("div", class_="product-desc").text
+        # print(product_desc + "\n")
+        # try:
+        #     regex = re.compile(
+        #         r"""(?:Scientific[ ]Name[-][  ]*)[\w'"]+([  ]*[\w'"]*)*"""
+        #     )
+        #     scientific_name = regex.search(product_desc)
+        #     print(
+        #         f"Scientific Name: {scientific_name.group().split('Scientific Name-')[1].strip()}"
+        #     )
+        # except AttributeError:
+        #     print(f"Scientific Name (Default): Sansevieria")
+
+        # print("")
+
         product_price = product_price.text.strip()
         extracted_data["Price"] = product_price
 
         combo = "combo" in product_title.lower()
 
+        # product_details = soup.find("div", class_="tab-pd-details")
+        # product_desc = product_details.find("div", class_="product-desc").text
+
         if combo:
-            global curr_count
-            print(f"Combo {curr_count}, Page: {page_number}: {product_title}\n")
-            curr_count += 1
-            get_names(product_link)
+            # print("Scientific Name (Combo - Default): Sansevieria")
+            # global curr_count
+            # print(f"Combo {curr_count}, Page: {page_number}: {product_title}\n")
+            # curr_count += 1
+            # get_names(product_link)
+            pass
+        else:
+            print(f"Normal Name: {product_title}")
+            try:
+                regex = re.compile(r"""Sansevieria[  ]*[\w'"]+([  ]*[\w'"]*)*""")
+                scientific_name = regex.search(product_desc)
+                print(f"Scientific Name: {scientific_name.group()}")
+            except AttributeError:
+                print(f"Scientific Name (Default): Sansevieria")
 
         extracted_data["Combo"] = combo
-
         page_data.append(extracted_data)
 
     # print(f"Finished scraping page {page_number}.")
@@ -101,7 +214,7 @@ def scrape_page(page_number: int) -> List[Dict[str, str]]:
     return page_data
 
 
-def process_pages() -> List[Dict[str, str]]:
+def process_grid() -> List[Dict[str, str]]:
     """Scrapes multiple pages and returns combined product data."""
     scraped_data = list()
     for curr_page in range(1, PAGE_LIMIT + 1):
