@@ -18,7 +18,6 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import pandas as pd
-from typing import List, Dict
 import re
 from typing import Dict, List
 
@@ -52,7 +51,7 @@ def build_dataframe(plant_data: List[Dict[str, str]]):
     pass
 
 
-def cook_soup(request_url):
+def cook_soup(request_url: str):
     """Takes a request URL and returns a BeautifulSoup object."""
     source = requests.get(request_url).text
     return BeautifulSoup(source, "lxml")
@@ -118,6 +117,7 @@ def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
             "Price": "",
             "URL": "",
             "Combo Names": [],
+            "Units": "",
         }
 
         plant_url = extract_url(product_card)
@@ -149,6 +149,9 @@ def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
         extracted_data["Price"] = plant_price
         extracted_data["URL"] = plant_url
         extracted_data["Combo Names"].extend(plant_combo_names)
+        extracted_data["Units"] = (
+            len(extracted_data["Combo Names"]) if extracted_data["Combo Names"] else 1
+        )
 
         page_data.append(extracted_data)
 
@@ -188,10 +191,10 @@ def main() -> None:
 
     scraped_data = process_grid()
 
-    csv_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_02_fermosa_scraper/files/results.csv"
+    csv_path = "files/results.csv"
     dump_to_csv(csv_path, scraped_data)
 
-    excel_path = "/Users/ahan/Documents/GitHub/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_02_fermosa_scraper/files/results.xlsx"
+    excel_path = "files/results.xlsx"
     dump_to_excel(excel_path, scraped_data)
 
 
