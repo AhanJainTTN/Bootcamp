@@ -37,6 +37,7 @@ COLLECTIONS_URL = "https://fermosaplants.com/collections/sansevieria?page={}"
 # \d+\.[ ]*[\w]+[ ]*(?!\d)[\w]*
 # \d+\.[  ]*[\w]+([  ]*(?!\d)[\w]*)*
 # Combo Names: \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*
+# \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*(?!\.))*
 # Scientific Names v2: Scientific[ ]Name[-][  ]*[\w'"]+([  ]*[\w'"]*)*
 # (?:Scientific[ ]Name[-][  ]*)[\w'"]+([  ]*[\w'"]*)*
 # /Scientific[ ]Name[-][  ]*[\w'"]+([  ]*[\w'"]*)*|(Sansevieria|SANSEVIERIA|MOONSHINE)[  ]*[\w'"]+([  ]*[\w'"]*)*/gm
@@ -44,6 +45,10 @@ COLLECTIONS_URL = "https://fermosaplants.com/collections/sansevieria?page={}"
 # ((?:Scientific[ ]Name[-])|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|BLACK GOLD COMPACTA
 # ((?:Scientific[ ]Name[-])|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|Black Gold Compacta|S. Dragon Scales
 # (?<=Scientific[ ]Name[-]|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|Black Gold Compacta|S. Dragon Scales
+# \d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)[\w]*(?!\.))*
+# \d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)([\w](?!ncluding shipping))*(?!\.))*
+# \d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)([\w](?!ncluding shipping))*(?!\.))*
+# \d+\.([  ](?!Including shipping))*([\w](?!\.))+(([  ](?!\d))*([\w](?!ncluding shipping)(?!\.))*)*
 
 
 def build_dataframe(plant_data: List[Dict[str, str]]):
@@ -59,7 +64,9 @@ def cook_soup(request_url: str):
 
 def extract_combo_names(product_desc):
     """Takes a product link of a combo and returns all the names in the combo."""
-    regex = re.compile(r"\d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*")
+    regex = re.compile(
+        r"""\d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)([\w](?!ncluding shipping))*(?!\.))*"""
+    )
     matches = [
         match.group().split(".")[1].strip().title()
         for match in regex.finditer(product_desc)
@@ -110,16 +117,6 @@ def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
     page_data = list()
     for product_card in grid_soup.find_all("div", class_="product-item-v5"):
 
-        extracted_data = {
-            "Page": "",
-            "Common Name": "",
-            "Scientific Name": "",
-            "Price": "",
-            "URL": "",
-            "Combo Names": [],
-            "Units": "",
-        }
-
         plant_url = extract_url(product_card)
         plant_common_name = extract_common_name(product_card)
         plant_price = extract_price(product_card)
@@ -137,21 +134,22 @@ def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
             if "combo" in plant_common_name.lower()
             else extract_scientific_name(product_desc)
         )
+
         plant_combo_names = (
             extract_combo_names(product_desc)
             if "combo" in plant_common_name.lower()
             else []
         )
 
-        extracted_data["Page"] = page_number
-        extracted_data["Common Name"] = plant_common_name
-        extracted_data["Scientific Name"] = plant_scientific_name
-        extracted_data["Price"] = plant_price
-        extracted_data["URL"] = plant_url
-        extracted_data["Combo Names"].extend(plant_combo_names)
-        extracted_data["Units"] = (
-            len(extracted_data["Combo Names"]) if extracted_data["Combo Names"] else 1
-        )
+        extracted_data = {
+            "Page": page_number,
+            "Common Name": plant_common_name,
+            "Scientific Name": plant_scientific_name,
+            "Price": plant_price,
+            "URL": plant_url,
+            "Combo Names": plant_combo_names,
+            "Units": len(plant_combo_names) if plant_combo_names else 1,
+        }
 
         page_data.append(extracted_data)
 
@@ -169,10 +167,18 @@ def process_grid() -> List[Dict[str, str]]:
     return scraped_data
 
 
-def dump_to_excel(excel_path: str, data: List[Dict[str, str]]) -> None:
+def dump_to_excel(excel_path: str, plant_data: List[Dict[str, str]]) -> None:
     """Writes scraped data to an Excel file."""
-    df = pd.DataFrame(data)
-    df.to_excel(excel_path, index=False)
+    df_main = pd.DataFrame(plant_data)
+    max_columns = max(len(row) for row in df_main["Combo Names"])
+    column_headers = [f"Plant {i + 1}" for i in range(max_columns)]
+
+    df_combo = pd.DataFrame(
+        df_main["Combo Names"].tolist(), columns=column_headers
+    ).fillna("N/A")
+    df_combined = df_main.join(df_combo).drop(labels="Combo Names", axis=1)
+
+    df_combined.to_excel(excel_path, index=False)
     print(f"Finished writing to {excel_path}")
 
 
@@ -200,3 +206,19 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    # print(
+    #     cook_soup(
+    #         "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-of-3-beautiful-plants"
+    #     )
+    #     .find("div", class_="tab-pd-details")
+    #     .find("div", class_="product-desc")
+    #     .text
+    # )
+    # print(
+    #     cook_soup(
+    #         "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-of-2-beautiful-plants-black-ants-and-silver-boncel"
+    #     )
+    #     .find("div", class_="tab-pd-details")
+    #     .find("div", class_="product-desc")
+    #     .text
+    # )
