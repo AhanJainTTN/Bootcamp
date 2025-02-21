@@ -461,7 +461,12 @@ print(list(my_list))
 # reduce
 from functools import reduce
 
-x = reduce(lambda x, y: x + y, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+def add(x, y, z):
+    return x + y + z
+
+
+x = reduce(add, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 print(x)
 
 # sum
@@ -722,3 +727,8 @@ class A:
 a = A()
 print(A.my_str)
 print(a.my_str)  # if no my_str for instance, refers to class my_str
+
+my_list = [1, 2, 3]
+a = 1
+c = 1
+print(a is c)
