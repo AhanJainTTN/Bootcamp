@@ -26,29 +26,10 @@ PAGE_LIMIT = 7
 BASE_URL = "https://fermosaplants.com/"
 COLLECTIONS_URL = "https://fermosaplants.com/collections/sansevieria?page={}"
 
-# \d\.[\s ]?([\w]*[\s ]?)*
-# \d+\.[\s ]?([A-Za-z]*[\s ]?)*
-# \d+\.[\s ]?([A-Za-z]*[\s ]?)*.*
-# \d+\.[  ]?([A-Za-z]*[\s ]?)*.*
-# \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
-# \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
-# \d+\.[  ]*[A-Za-z]+([  ]*[A-Za-z]*)*
-# \d+\.[ \\u00A0 ]*[A-Za-z]+([  \\u00A0]*[A-Za-z]*)*
-# \d+\.[ ]*[\w]+[ ]*(?!\d)[\w]*
-# \d+\.[  ]*[\w]+([  ]*(?!\d)[\w]*)*
-# Combo Names: \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*
-# \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*(?!\.))*
-# Scientific Names v2: Scientific[ ]Name[-][  ]*[\w'"]+([  ]*[\w'"]*)*
-# (?:Scientific[ ]Name[-][  ]*)[\w'"]+([  ]*[\w'"]*)*
-# /Scientific[ ]Name[-][  ]*[\w'"]+([  ]*[\w'"]*)*|(Sansevieria|SANSEVIERIA|MOONSHINE)[  ]*[\w'"]+([  ]*[\w'"]*)*/gm
-# /((?:Scientific[ ]Name[-])|Sansevieria|Moonshine)[  ]*[\w'"]+([  ]*[\w'"]*)*/gmi
-# ((?:Scientific[ ]Name[-])|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|BLACK GOLD COMPACTA
-# ((?:Scientific[ ]Name[-])|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|Black Gold Compacta|S. Dragon Scales
-# (?<=Scientific[ ]Name[-]|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|Black Gold Compacta|S. Dragon Scales
-# \d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)[\w]*(?!\.))*
-# \d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)([\w](?!ncluding shipping))*(?!\.))*
-# \d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)([\w](?!ncluding shipping))*(?!\.))*
-# \d+\.([  ](?!Including shipping))*([\w](?!\.))+(([  ](?!\d))*([\w](?!ncluding shipping)(?!\.))*)*
+# Combo Names v1: \d+\.[  ]*[\w]+(?!\.)([  ]*(?!\d)[\w]*)*
+# Combo Names v2 (https://regex101.com/r/gMwsUi/4): \d+\.[  ]*(?!\d)(?!Including shipping)([\w](?!ncluding shipping))+(?!\.)([  ]*(?!\d)(?!including shipping)([\w](?!ncluding shipping))*(?!\.))*
+# Scientific Names v1: Scientific[ ]Name[-][  ]*[\w'"]+([  ]*[\w'"]*)*
+# Scientific Names v2: (?<=Scientific[ ]Name[-])|Sansevieria|Moonshine)[  ]*[\w'"-]+([  ]*[\w'"-]*)*|Black Gold Compacta|S. Dragon Scales
 
 
 def build_dataframe(plant_data: List[Dict[str, str]]):
@@ -65,7 +46,7 @@ def cook_soup(request_url: str):
 def extract_combo_names(product_desc):
     """Takes a product link of a combo and returns all the names in the combo."""
     regex = re.compile(
-        r"""\d+\.[  ]*(?!Including shipping)[\w]+(?!\.)([  ]*(?!\d)([\w](?!ncluding shipping))*(?!\.))*"""
+        r"""\d+\.[  ]*(?!\d)(?!Including shipping)([\w](?!ncluding shipping))+(?!\.)([  ]*(?!\d)(?!including shipping)([\w](?!ncluding shipping))*(?!\.))*"""
     )
     matches = [
         match.group().split(".")[1].strip().title()
@@ -143,7 +124,7 @@ def scrape_page_grid(page_number: int) -> List[Dict[str, str]]:
 
         extracted_data = {
             "Page": page_number,
-            "Common Name": plant_common_name,
+            "Product Listing": plant_common_name,
             "Scientific Name": plant_scientific_name,
             "Price": plant_price,
             "URL": plant_url,
@@ -206,19 +187,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    # print(
-    #     cook_soup(
-    #         "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-of-3-beautiful-plants"
-    #     )
-    #     .find("div", class_="tab-pd-details")
-    #     .find("div", class_="product-desc")
-    #     .text
-    # )
-    # print(
-    #     cook_soup(
-    #         "https://fermosaplants.com/collections/sansevieria/products/sansevieria-combo-of-2-beautiful-plants-black-ants-and-silver-boncel"
-    #     )
-    #     .find("div", class_="tab-pd-details")
-    #     .find("div", class_="product-desc")
-    #     .text
-    # )
