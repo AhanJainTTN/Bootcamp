@@ -11,6 +11,8 @@ Example list of NPI numbers: "1275568826" "1356637649" "1841383767" "1275928012"
 import requests
 import pickle
 import json
+import threading
+import time
 from typing import Dict, List
 
 # Constants
@@ -20,8 +22,11 @@ REQUEST_URL = "https://npiregistry.cms.hhs.gov/api/?number={}&enumeration_type=&
 class InvalidNPIIDError(Exception):
     """Error class to handle invalid NPI IDs."""
 
+    def __init__(self, npi_id: str):
+        self.npi_id = npi_id
+
     def __str__(self) -> str:
-        return f"Invalid NPI ID. An NPI is a unique 10-digit number used to identify health care providers. Please recheck entered ID."
+        return f"{self.npi_id} is an invalid NPI ID. An NPI is a unique 10-digit number used to identify health care providers. Please recheck entered ID."
 
 
 def process_id(npi_id: int) -> Dict[str, str]:
@@ -29,14 +34,14 @@ def process_id(npi_id: int) -> Dict[str, str]:
     try:
         # NPI ID must contain only 10 digits - no more no less
         if not npi_id.isdigit() or len(npi_id) != 10:
-            raise InvalidNPIIDError
+            raise InvalidNPIIDError(npi_id)
 
         id_data = requests.get(REQUEST_URL.format(npi_id))
         id_data = id_data.json()
 
         # only add non empty results
         if id_data["result_count"] > 0:
-            print(f"Processed {npi_id}.")
+            # print(f"Processed {npi_id}.")
             return id_data["results"]
 
     except InvalidNPIIDError as e:
@@ -46,13 +51,36 @@ def process_id(npi_id: int) -> Dict[str, str]:
 def process_all_ids(npi_ids: List[int]) -> List[Dict[str, str]]:
     """Takes in a list of NPI IDs and returns corresponding data as a list of dictionaries."""
     extracted_data = list()
+    threads = list()
+    lock = threading.Lock()
+
     for npi_id in npi_ids:
-        npi_data = process_id(npi_id)
-        if npi_data is not None:
-            extracted_data.extend(npi_data)
+        thread = threading.Thread(target=(worker), args=(npi_id, extracted_data, lock))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
 
     return extracted_data
-    # return [process_id(npi_id) for npi_id in npi_ids]
+
+
+# A middleman function like worker is needed since original process_id was not designed to handle concurrency and rather than modifying original function, we use a worker function to improve readability and modularity.
+def worker(
+    npi_id: int, extracted_data: List[Dict[str, str]], lock: threading.Lock
+) -> None:
+    """
+    Worker function for threading. Fetches data for a given NPI ID and appends it to the shared extracted_data list.
+    """
+    npi_data = process_id(npi_id)
+    if npi_data:
+        # not an atomic operation but Python's GIL ensures
+        # that list operations like .extend() are thread-safe in CPython
+        # https://stackoverflow.com/questions/38266186/is-extending-a-python-list-e-g-l-1-guaranteed-to-be-thread-safe
+        extracted_data.extend(npi_data)
+        with lock:
+            # extracted_data.extend(npi_data)
+            print(f"Processed {npi_id}.")
 
 
 def load_ids(id_path: str) -> List[int]:
@@ -73,14 +101,18 @@ def dump_to_json(json_path, data) -> None:
 
 def main() -> None:
     """Entry point of the script."""
-    id_path = "/home/ahan/Documents/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_01_NPI_scraper/files/npi_ids.pkl"
+    id_path = "files/npi_ids.pkl"
     npi_ids = load_ids(id_path)
 
     extracted_data = process_all_ids(npi_ids)
 
-    json_path = "/home/ahan/Documents/Bootcamp/Week_03_Python_for_Development/Day_02_Regular_Expression_and_Text_Processing/Exercises/ex_01_NPI_scraper/files/results.json"
+    json_path = "files/results.json"
     dump_to_json(json_path, extracted_data)
+    print(len(extracted_data))
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    print(f"Execution Time: {end_time - start_time}")
