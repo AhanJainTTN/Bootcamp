@@ -14,6 +14,8 @@ Name: Plant names (one plant name in one column)
 """
 
 import csv
+import time
+import threading
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -43,31 +45,114 @@ class FermosaCollectionsScraper:
         )
         self.REGEX_VARIEGATED = re.compile(r"Variegate[d]?", re.IGNORECASE)
         self.REGEX_PLANT_TYPE = re.compile(r"Clump|Single[ ]*Leaf|Pup", re.IGNORECASE)
+        self.lock = threading.Lock()
         self.listing_count = 1
 
     def scrape_plant_data(self) -> List[Dict[str, str]]:
         """Scrapes plant data from all pages."""
-        self.listing_count = 1
         extracted_data = list()
+        threads = list()
         for url in self.extract_urls_from_all_pages():
-            extracted_data.append(self.process_listing(url))
-            self.listing_count += 1
+            thread = threading.Thread(
+                target=self.worker_listing_data_extractor, args=(url, extracted_data)
+            )
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
         return extracted_data
 
+    def worker_listing_data_extractor(
+        self, url: str, extracted_data: List[Dict[str, str]]
+    ) -> None:
+        """Thread worker function that extracts plant data."""
+        # Correct approach - call function here and handle incrementing inside process_listing with locks and local variables
+        extracted_data.append(self.process_listing(url))
+
+        # Other Approches
+
+        # self.listing_count += 1
+
+        # Incorrect approach - Incrementing before processing results in incorrect S.No. This occurs because context switching allows multiple threads to increment self.listing_count before process_listing() for a single thread completes execution. As a result, some listings may display an incorrect S.No. The issue is non-deterministic i.e. depending on the number of URLs, it is possible that one request completes before all threads have incremented self.listing_count leading to unpredictable numbering. The observed behavior may vary across different runs, as the timing of thread execution determines whether self.listing_count is incremented multiple times before any processing occurs.
+
+        # works for multiple runs due to small URL count
+
+        # print(f"Processing listing {self.listing_count}...")
+        # extracted_data.append(self.process_listing(url))
+        # self.listing_count += 1
+
+        # Simulate a tiny delay to expose race conditions
+
+        # print(f"Processing listing {self.listing_count}...")
+        # extracted_data.append(self.process_listing(url))
+        # time.sleep(0.000000000000000001)
+        # self.listing_count += 1
+
+        # Even a single print statement can expose the race conditions and mess up the order
+
+        # print(f"Processing listing {self.listing_count}...")
+        # extracted_data.append(self.process_listing(url))
+        # print(self.listing_count)
+        # self.listing_count += 1
+
+        # A single statement can cause a context switch, messing up the order. Race conditions may not always show up explicitly but can be extremely difficult to debug or reproduce. Even if it seems to work correctly without locks, race conditions still exist.
+
+        # Correct printing but incorrect S.No due to delayed updates
+
+        # with self.lock:
+        #     print(f"Processing listing {self.listing_count}...")
+        #     self.listing_count += 1
+
+        # Why does printing become correct but S.No is incorrect when using a lock?
+        # Because S.No takes its value from self.listing_count, which is updated by one thread at a time. However, another thread may modify self.listing_count while another thread assumes it's unchanged. This can lead to inconsistencies where different threads have different views of self.listing_count. Printing is correct because printing and incrementing is done in isolation.
+
     def extract_urls_from_all_pages(self) -> List[str]:
         """Extracts product URLs from all pages in the grid."""
-        return [
-            self.extract_url(product_card)
-            for curr_page in range(1, self.PAGE_LIMIT + 1)
-            for product_card in self.cook_soup(
-                self.COLLECTIONS_URL.format(curr_page)
-            ).find_all("div", class_="product-item-v5")
-        ]
+        listing_urls = list()
+        threads = list()
+        for curr_page in range(1, self.PAGE_LIMIT + 1):
+            thread = threading.Thread(
+                target=self.worker_page_url_extractor,
+                args=(curr_page, listing_urls),
+            )
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        return listing_urls
+
+    def worker_page_url_extractor(self, curr_page: int, listing_urls: List[str]):
+        """Worker function to fetch product URLs from a single page."""
+        request_url = self.COLLECTIONS_URL.format(curr_page)
+        page_soup = self.cook_soup(request_url)
+
+        if not page_soup:
+            print(f"Skipping page {curr_page} due to request failure.")
+            return
+
+        product_cards = page_soup.find_all("div", class_="product-item-v5")
+        page_urls = [self.extract_url(product_card) for product_card in product_cards]
+
+        if page_urls:
+            listing_urls.extend(page_urls)
 
     def process_listing(self, listing_url: str) -> Dict[str, str]:
         """Takes in a listing URL and extracts Product Title, Price, Scientific Name, Units and Combo Names (if applicable)."""
-        print(f"Processing listing {self.listing_count}...")
+
+        # print() is not atomic, meaning context switches can occur mid-execution. This can result in multiple incorrect print statements in the same line.
+        # print(f"Processing listing {self.listing_count}...")
+
+        # Fix - using a lock ensures correct printing and prevents context switches. This ensures only one thread can increment self.listing_count at a time and it's value is immediately assigned to a local variable which is not shared by threads in this context.
+        # Note - Excel output may be random but can be sorted - this ensures no duplicate S.Nos.
+        with self.lock:
+            print(f"Processing listing {self.listing_count}...")
+            serial_no = self.listing_count
+            self.listing_count += 1
+
         product_soup = self.cook_soup(listing_url)
         if not product_soup:
             return self.handle_missing_details(listing_url)
@@ -87,7 +172,7 @@ class FermosaCollectionsScraper:
         plant_type = self.extract_type(product_title)
 
         return {
-            "S.No": self.listing_count,
+            "S.No": serial_no,
             "Product Listing": self.extract_product_title(product_soup),
             "Scientific Name": (
                 self.extract_scientific_name(product_desc)
@@ -149,9 +234,7 @@ class FermosaCollectionsScraper:
         """Extracts product listing URL."""
         product_title = product_card.find("h4", class_="title-product")
         product_link = (
-            product_title.find("a").get("href", self.BASE_URL)
-            if product_title
-            else self.BASE_URL
+            product_title.find("a").get("href", "#") if product_title else "#"
         )
         return urljoin(self.BASE_URL, product_link)
 
@@ -192,7 +275,11 @@ class FermosaCollectionsScraper:
         df_combo = pd.DataFrame(
             df_main["Combo Names"].tolist(), columns=column_headers
         ).fillna("N/A")
-        df_combined = df_main.join(df_combo).drop(labels="Combo Names", axis=1)
+        df_combined = (
+            df_main.join(df_combo)
+            .drop(labels="Combo Names", axis=1)
+            .sort_values(by=["S.No"])
+        )
 
         df_combined.to_excel(excel_path, index=False)
         print(f"Finished writing to {excel_path}")
@@ -216,12 +303,15 @@ def main() -> None:
     scraper = FermosaCollectionsScraper(collections_url, pages)
     scraped_data = scraper.scrape_plant_data()
 
-    excel_path = r"files\results.xlsx"
+    excel_path = r"files/results.xlsx"
     FermosaCollectionsScraper.dump_to_excel(excel_path, scraped_data)
 
-    csv_path = r"files\results.csv"
+    csv_path = r"files/results.csv"
     FermosaCollectionsScraper.dump_to_csv(csv_path, scraped_data)
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    print(f"Execution Time: {end_time - start_time}")
