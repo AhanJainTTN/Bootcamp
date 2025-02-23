@@ -109,7 +109,7 @@ class FermosaCollectionsScraper:
         # Because S.No takes its value from self.listing_count, which is updated by one thread at a time. However, another thread may modify self.listing_count while another thread assumes it's unchanged. This can lead to inconsistencies where different threads have different views of self.listing_count. Printing is correct because printing and incrementing is done in isolation.
 
     def extract_urls_from_all_pages(self) -> List[str]:
-        """Extracts product URLs from all pages in the grid."""
+        """Extracts product URLs from all pages."""
         listing_urls = list()
         threads = list()
         for curr_page in range(1, self.PAGE_LIMIT + 1):
@@ -233,10 +233,13 @@ class FermosaCollectionsScraper:
     def extract_url(self, product_card: BeautifulSoup) -> str:
         """Extracts product listing URL."""
         product_title = product_card.find("h4", class_="title-product")
-        product_link = (
-            product_title.find("a").get("href", "#") if product_title else "#"
-        )
-        return urljoin(self.BASE_URL, product_link)
+
+        if product_title:
+            product_link = product_title.find("a")
+            if product_link and product_link.get("href"):
+                return urljoin(self.BASE_URL, product_link["href"])
+
+        return f"{self.BASE_URL}#"
 
     def cook_soup(self, request_url: str) -> BeautifulSoup:
         """Fetches a URL and returns a BeautifulSoup object."""
@@ -248,9 +251,7 @@ class FermosaCollectionsScraper:
             print(f"Error fetching {request_url}: {e}")
             return None
 
-    def handle_missing_details(
-        self, listing_url: str, listing_count: int
-    ) -> Dict[str, str]:
+    def handle_missing_details(self, listing_url: str) -> Dict[str, str]:
         """Handles missing details in the HTML response."""
         print(f"Missing product details: {listing_url}")
         return {
