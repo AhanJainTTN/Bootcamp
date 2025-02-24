@@ -65,6 +65,7 @@ def process_all_ids(npi_ids: List[int]) -> List[Dict[str, str]]:
     return extracted_data
 
 
+# To-DO: Asyncio - thread pooling
 # A middleman function like worker is needed since original process_id was not designed to handle concurrency and rather than modifying original function, we use a worker function to improve readability and modularity.
 def worker(
     npi_id: int, extracted_data: List[Dict[str, str]], lock: threading.Lock
