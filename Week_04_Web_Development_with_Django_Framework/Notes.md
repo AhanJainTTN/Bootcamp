@@ -10,7 +10,7 @@ $ django-admin startproject <project-name> <directory>
 
 This will create a project called <project-name> inside the <directory>.
 
-Start the server.
+Start the serv
 
 Run inside the root directory i.e. the one which holds manage.py.
 
