@@ -44,3 +44,5 @@ print(sys.path)
 # PATH="/Library/Frameworks/Python.framework/Versions/3.10/bin:${PATH}"
 # export PATH
 # ahan@Ahans-MacBook-Air Desktop %
+
+# ['', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/home/ahan/.local/lib/python3.10/site-packages', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages']
