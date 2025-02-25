@@ -1,0 +1,2 @@
+App1: Management Focus - Orders - order_id item_id quantity curr_status
+App2: Customer Focused - Dishes/Menu Items - Create model - Image name desc ratings price
