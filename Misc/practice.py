@@ -733,8 +733,191 @@ a = 1
 c = 1
 print(a is c)
 
-# To-Do: Custom decorator for program execution time
-
 # No two threads from the same process are ever executed at the same time. They can jump around on the CPU cores but are never executed simultaneously. This is ensured by the Global Interpreter Lock (GIL) which locks the interpreter for other threads of the process when a thread from the process is currently accessing it.
 # All threads in a process share the memory space allocated to the process by the OS for code, data etc. but the threads have their own registers and stack memory.
 # IO operations are blocking i.e. once a thread makes an IO request, the thread must wait for the return value. During this wait, the GIL is released and another thread from the same process can access it.
+
+# To-Do: Custom decorator for program execution time - done
+import time
+
+
+def print_exec_time(func):
+
+    # possible to send just one argument i.e. only use n here instead of *args, **kwargs but this restricts decorator to functions which only take a single parameter therefore better to use *args, **kwargs
+    def wrapper(n):
+        start_time = time.time()
+        func()
+        end_time = time.time()
+        print(f"Execution Time: {(end_time - start_time):.{n}f}s")
+
+    return wrapper
+
+
+@print_exec_time
+def testfunc():
+    for i in range(10000):
+        pass
+
+
+testfunc(8)
+
+import time
+
+
+def print_exec_time(n):
+
+    def decorator(func):
+
+        def wrapper():
+            start_time = time.time()
+            func()
+            end_time = time.time()
+            print(f"Execution Time: {(end_time - start_time):.{n}f}s")
+
+        return wrapper
+
+    return decorator
+
+
+@print_exec_time(5)
+def testfunc():
+    for i in range(10000):
+        pass
+
+
+testfunc()
+
+import time
+
+
+def print_exec_time(n):
+
+    def decorator(func):
+
+        def wrapper():
+            start_time = time.time()
+            func()
+            end_time = time.time()
+            print(f"Execution Time: {(end_time - start_time):.{n}f}s")
+
+        return wrapper
+
+    return decorator
+
+
+@print_exec_time(5)
+def testfunc():
+    for i in range(10000):
+        pass
+
+
+testfunc()
+
+
+def multiplier(n):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            res = func(*args, **kwargs)
+            return res * n
+
+        return wrapper
+
+    return decorator
+
+
+def power(n):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) ** n
+
+        return wrapper
+
+    return decorator
+
+
+@power(2)
+@multiplier(5)
+def add(x, y):
+    return x + y
+
+
+print(add(5, 5))
+
+
+def multiplier(n):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            res = func(*args, **kwargs)
+            return res * n
+
+        return wrapper
+
+    return decorator
+
+
+def power(n):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) ** n
+
+        return wrapper
+
+    return decorator
+
+
+def adder(func):
+    def wrapper(*args, **kwargs):
+        a, b = func(*args, **kwargs)
+        return a + b
+
+    return wrapper
+
+
+@power(2)
+@multiplier(5)
+@adder
+def identity(x, y):
+    return x, y
+
+
+power(2)(multiplier(5)(adder(identity(5, 5))))
+
+print(identity(5, 5))
+
+# equivalent to identity = power(2)(multiplier(5)(adder(identity)))
+# Decorators execute from top to bottom but are applied from bottom to top i.e. first power is executed which then calls wrapped multipler + adder which then calls adder.
+# Important to note functions are what are being returned
+# first adder decorates identity and returns a function which takes in two arguments and returns their sum
+# this function is then passed to the multiplier decorator which then proceeds with its own transformation and so on.
+
+my_list = [10, 20, 30]  # Iterable
+
+iterator = iter(my_list)  # Creates an iterator
+
+print(iter(iterator))
+print(iter(iterator))
+print(next(iterator))
+print(next(iterator))
+
+# iter just returns itself when used on an iterator
+# iter returns an iterator when used on an iterable
+
+my_list = [[1, 4, 7], [23, 4], [1, 4, 7], [98, 86, 1, 6]]
+print(my_list)
+
+bucket_sizes = list()
+flattened_list = list()
+for bucket in my_list:
+    flattened_list.extend(item for item in bucket)
+    bucket_sizes.append(len(bucket))
+
+flattened_list = sorted(flattened_list)
+
+new_list = list()
+curr_idx = 0
+for bucket_size in bucket_sizes:
+    temp_list = flattened_list[curr_idx : curr_idx + bucket_size]
+    new_list.append(temp_list)
+    curr_idx += bucket_size
+
+print(new_list)
