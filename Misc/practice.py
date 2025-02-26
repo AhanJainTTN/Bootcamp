@@ -455,15 +455,16 @@ print(type(singleton))
 print(singleton)
 
 # filter
-my_list = filter(lambda x: x % 2 == 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-print(list(my_list))
+# my_list = filter(lambda x: x % 2 == 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+# print(list(my_list))
 
 # reduce
 from functools import reduce
 
 
-def add(x, y, z):
-    return x + y + z
+# wont work with any other arguments other than 2 since reduce passes two arguments to the function
+def add(x, y):
+    return x + y
 
 
 x = reduce(add, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -480,9 +481,9 @@ print(my_list)
 
 # generator expression
 gen_exp = (x for x in range(10))
-print(list(gen_exp))
-print(list(gen_exp))  # [] (blank) - why -
-print(gen_exp)
+# print(list(gen_exp))
+# print(list(gen_exp))  # [] (blank) - why -
+# print(gen_exp)
 
 
 # fibonacci
@@ -516,9 +517,9 @@ print(my_list)
 # print(my_list)
 
 # doesnt work for normal or frozenset since values in a set must be immutable for hash calculations and lookups - frozensets are themselves immutable and can be used as dictionary keys
-x = [7, 8, 9]
-my_set = frozenset({1, 2, 3, 4, 5, 6, x})
-print(my_set)
+# x = [7, 8, 9]
+# my_set = frozenset({1, 2, 3, 4, 5, 6, x})
+# print(my_set)
 
 
 def hello():
@@ -546,10 +547,11 @@ class A:
 a = A()
 print(a._x)
 # doesnt work because Python mangles private attributes using _ClassName__attribute to prevent accidental access.
-print(a.__y)
+# print(a.__y)
 # however still accessible through _ClassName__attribute
 print(a._A__y)
 
+# walrus operator
 (x := 5)
 print(x)
 
@@ -905,15 +907,15 @@ print(next(iterator))
 my_list = [[1, 4, 7], [23, 4], [1, 4, 7], [98, 86, 1, 6]]
 print(my_list)
 
-bucket_sizes = list()
-flattened_list = list()
+bucket_sizes = []
+flattened_list = []
 for bucket in my_list:
     flattened_list.extend(item for item in bucket)
     bucket_sizes.append(len(bucket))
 
 flattened_list = sorted(flattened_list)
 
-new_list = list()
+new_list = []
 curr_idx = 0
 for bucket_size in bucket_sizes:
     temp_list = flattened_list[curr_idx : curr_idx + bucket_size]
@@ -921,3 +923,107 @@ for bucket_size in bucket_sizes:
     curr_idx += bucket_size
 
 print(new_list)
+
+matrix = [
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+]
+
+# Approach 1
+transposed_matrix = list()
+for j in range(len(matrix[0])):
+    transposed_row = list()
+    for i in range(len(matrix)):
+        transposed_row.append(matrix[i][j])
+    transposed_matrix.append(transposed_row)
+print(transposed_matrix)
+
+# Approach 2
+transposed_matrix = [
+    [matrix[i][j] for i in range(len(matrix))] for j in range(len(matrix[0]))
+]
+print(transposed_matrix)
+
+# Approach 3
+transposed_matrix = [[row[i] for row in matrix] for i in range(len(matrix[0]))]
+print(transposed_matrix)
+
+t = []
+for i in range(len(matrix[0])):
+    l = []
+    for row in matrix:
+        l.append(row[i])
+    t.append(l)
+print(t)
+
+
+def my_sum(*args, **kwargs):
+    print(type(args))  # tuple
+    print(type(kwargs))  # dict
+    print(list(kwargs))  # dict just returns the keys so use dict.items()
+    print(args)
+    print(kwargs)
+    return 2
+
+
+print(my_sum(1, 2, 3, a=1, b=2, c=3))
+numbers_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+print(my_sum(*numbers_list))
+numbers_dict = {"a": 1, "b": 2, "c": 3}
+print(my_sum(**numbers_dict))
+
+# Instead of a list, print() has taken three separate arguments as the input. Another thing you’ll notice is that in print_unpacked_list.py, you used the unpacking operator * to call a function, instead of in a function definition. In this case, print() takes all the items of a list as though they were single arguments.
+my_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+print(*my_list)  # 1 2 3 4 5 6 7 8 9
+# print(**my_list)  # TypeError: print() argument after ** must be a mapping, not list
+
+my_dict = {"a": 1, "b": 2, "c": 3}
+# print(**my_dict)  # TypeError: 'a' is an invalid keyword argument for print()
+print(*my_dict)  # a b c
+
+# print(**my_list)
+
+# valid syntax in python
+my_list = a = b = c = d = numbers_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+my_dict = numbers_dict = {"a": 1, "b": 2, "c": 3}
+
+print(my_list, a, b, c, d, numbers_list)
+print(my_dict)
+print(numbers_list)
+print(numbers_dict)
+
+# There are other convenient uses of the unpacking operator. For example, say you need to split a list into three different parts. The output should show the first value, the last value, and all the values in between. With the unpacking operator, you can do this in just one line of code:
+my_list = [1, 2, 3, 4, 5, 6]
+
+a, *b, c = my_list
+
+print(a)
+print(b)
+print(c)
+
+# Another interesting thing you can do with the unpacking operator * is to split the items of any iterable object.
+my_first_list = [1, 2, 3]
+my_second_list = [4, 5, 6]
+my_merged_list = [*my_first_list, *my_second_list]
+print(my_merged_list)
+
+# You can even merge two different dictionaries by using the unpacking operator **
+my_first_dict = {"A": 1, "B": 2}
+my_second_dict = {"C": 3, "D": 4}
+# print(type(**my_first_dict))
+my_merged_dict = {**my_first_dict, **my_second_dict}
+print(my_merged_dict)
+
+# Remember that the * operator works on any iterable object. It can also be used to unpack a string
+a = [*"RealPython"]
+print(a)
+
+
+# invalid - needs comma
+# *a = "abc"
+# print(a)
+
+# It just takes the string RealPython and assigns all the items to the new list a, thanks to the unpacking operator *. The comma after the a does the trick. When you use the unpacking operator with variable assignment, Python requires that your resulting variable is either a list or a tuple. With the trailing comma, you have defined a tuple with only one named variable, a, which is the list
+(*a,) = "RealPython"
+print(a)
