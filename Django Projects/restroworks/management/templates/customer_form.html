@@ -1,0 +1,34 @@
+<!-- Original template taken from https://codepen.io/kvncnls/pen/MWmJaPw -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Restroworks - Customer Registration</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <h1>Restroworks</h1>
+    <div class="container">
+      <div class="cta-form">
+        <h2>User Registration</h2>
+      </div>
+      <!-- The action attribute in an HTML <form> tag defines the URL where form data should be sent after submission. -->
+      <form
+        id="form"
+        method="post"
+        action="/management/add/customer"
+        class="form"
+      >
+        {% csrf_token %} {{ form }}
+        <input type="submit" value="Register" />
+      </form>
+    </div>
+  </body>
+  <script>
+    window.onload = function () {
+      document.getElementById("form").reset();
+    };
+  </script>
+  <script src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+</html>
