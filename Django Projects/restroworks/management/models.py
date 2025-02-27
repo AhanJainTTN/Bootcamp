@@ -25,7 +25,7 @@ class MenuItem(models.Model):
         help_text="Please upload an image with equal height and width.",
         null=True,
     )
-    rating = models.FloatField()
+    rating = models.FloatField(null=True, blank=True)
     price = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
