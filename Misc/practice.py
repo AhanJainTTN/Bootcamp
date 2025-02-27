@@ -735,6 +735,35 @@ print(a is c)
 
 # To-Do: Custom decorator for program execution time
 
+
 # No two threads from the same process are ever executed at the same time. They can jump around on the CPU cores but are never executed simultaneously. This is ensured by the Global Interpreter Lock (GIL) which locks the interpreter for other threads of the process when a thread from the process is currently accessing it.
 # All threads in a process share the memory space allocated to the process by the OS for code, data etc. but the threads have their own registers and stack memory.
 # IO operations are blocking i.e. once a thread makes an IO request, the thread must wait for the return value. During this wait, the GIL is released and another thread from the same process can access it.
+
+
+# static methods cannot be overridden when inherited
+class A:
+
+    in_class = 23
+
+    @staticmethod
+    def meth():
+        A.in_class += 24
+
+
+print(A.in_class)
+A.meth()
+print(A.in_class)
+
+# islice can be used to yield specific values from a generator object
+from itertools import islice
+
+
+def my_gen(start, step):
+    while True:
+        yield start
+        start += step
+
+
+gen = my_gen(1, 1)
+print(list(islice(gen, 21)))
