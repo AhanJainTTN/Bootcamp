@@ -1027,3 +1027,31 @@ print(a)
 # It just takes the string RealPython and assigns all the items to the new list a, thanks to the unpacking operator *. The comma after the a does the trick. When you use the unpacking operator with variable assignment, Python requires that your resulting variable is either a list or a tuple. With the trailing comma, you have defined a tuple with only one named variable, a, which is the list
 (*a,) = "RealPython"
 print(a)
+
+
+# static methods cannot be overridden when inherited
+class A:
+
+    in_class = 23
+
+    @staticmethod
+    def meth():
+        A.in_class += 24
+
+
+print(A.in_class)
+A.meth()
+print(A.in_class)
+
+# islice can be used to yield specific values from a generator object
+from itertools import islice
+
+
+def my_gen(start, step):
+    while True:
+        yield start
+        start += step
+
+
+gen = my_gen(1, 1)
+print(list(islice(gen, 21)))
