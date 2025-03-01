@@ -1,0 +1,122 @@
+class Customer(models.Model):
+    first_name = ...
+    second_name = ...
+
+    class Meta:
+        managed = False
+
+
+def add(*args, **kwargs):
+    print(args) # (1, 2, 3)
+    print(kwargs) # {"a": 1, "b" : 2, "c" : 3}
+
+add(1, 2, 3, a=1, b=2, c=3)
+
+
+my_list_input = [1, 2, 3, 4, 4, 5, 5, 6, 7]
+my_set = set()
+
+my_list_output = list()
+for item in my_list_input:
+    if item not in my_set:
+        my_list_output.append(item)
+    my_set.add(item)
+
+print(my_list_output)
+
+__del__ vs __exit__ vs __init__
+
+
+x = 5
+del(x)
+
+# classmethod vs staticmethod vs instancemethod
+
+class Employee:
+    raise_amount = 1.05
+
+    # instance method
+    def get_details(self)():
+        return self.name
+
+    @classmethod
+    def modify_raise(cls, new_raise_amount):
+        cls.raise_amount = new_raise_amount
+
+e = Employee ()
+e.modify_raise(2)
+Employee.modify_raise(2)
+
+class MathOperations:
+
+    @staticmethod
+    def add(x, y)
+        return x + y
+
+m = MathOperations()
+print(m.add(2, 3)) # 5
+res = MathOperations.add(2, 3)
+print(res) # 5
+
+Threading vs Multiprocessing
+
+count = 0
+
+def counter():
+    count += 1 # NameError
+    count
+
+    def counter_in_counter():
+        count += 1
+
+import time
+
+def add(x, y):
+    return x + y
+
+class ExecutionTimeTracker:
+"""Tracks execution time of a block of code."""
+
+    def __init__(self):
+        self.start_time = time.time()
+    
+    def __enter__(self):
+        pass
+    
+    def __exit__(self):
+        self.end_time = time.time()
+        print(f"Execution Time: {self.end_time - self.start_time}")
+
+with ExecutionTimeTracker() as exec_time:
+    add()
+    time.sleep(2)
+
+Write a script using concurrent.futures module and download web pages defined in a list of urls
+
+import Thread
+from typing import List
+
+def get_page_details(url: str, page_data: List):
+    """Gets HTML content of a page"""
+    response = request.get(url)
+    return response.text
+
+def process_all_pages(urls: List):
+    """Downloads web pages defined in a list of urls"""
+    threads = list()
+    page_data = list()
+    for url in urls:
+        thread = Thread.thread(target=(get_page_details), args=(url))
+        threads.append(thread)
+        thread.start()
+    
+    for thread in threads:
+        thread.join()
+
+List comprehensions vs generator expressions
+
+my_list = [val for val in range(10)]
+print(my_list) # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+my_gen = (val for val in range(100000))
+print(my_gen) # class <generator object>
