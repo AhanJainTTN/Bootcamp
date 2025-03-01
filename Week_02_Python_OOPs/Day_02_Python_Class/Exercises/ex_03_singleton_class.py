@@ -2,8 +2,6 @@
 Implement a singleton class `Database` that ensures only one instance of the class can be created.
 """
 
-import sys
-
 
 class Database:
     """

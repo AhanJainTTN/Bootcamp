@@ -36,7 +36,7 @@ Even though this code is syntactically correct, it still raises a `TypeError` ex
 #### Example:
 
 ```python
-# my_list = [1, 2, 3, 4
+my_list = [1, 2, 3, 4
 ```
 
 #### Output:
@@ -100,7 +100,6 @@ After accessing my_dict.
 student_marks = [60, 70, 80, 95, 96]
 class_average = sum(student_marks) / len(student_marks)
 print(class_average)
-
 ```
 
 #### Output:
