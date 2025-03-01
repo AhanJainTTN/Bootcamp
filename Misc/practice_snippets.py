@@ -1056,3 +1056,86 @@ def my_gen(start, step):
 
 gen = my_gen(1, 1)
 print(list(islice(gen, 21)))
+
+
+def func():
+    a = b = c = d = 5
+    print(locals())  # prints locals local to the contexv of the function
+    print(globals())  # prints globals regardless of where it is called from
+
+
+e = f = g = h = 5
+func()
+
+
+class A:
+    a = 5
+
+
+class B(A):
+    pass
+    # a = 7
+
+
+class C(B):
+    pass
+    # a = 9
+
+
+obj = C()
+print(obj.a)  # 5
+
+
+class A:
+    a = 5
+
+
+class B(A):
+    # pass
+    a = 7
+
+
+class C(A):
+    # pass
+    a = 9
+
+
+class D(B, C):
+    # a = 11
+    pass
+
+
+obj = D()
+print(obj.a)
+
+
+class A:
+    def method(self):
+        print("A method")
+
+
+class B(A):
+    def method(self):
+        print("B method")
+        super().method()
+
+
+class C(A):
+    def method(self):
+        print("C method")
+
+
+class D(B, C):
+    def method(self):
+        print("D method")
+        super().method()
+
+
+obj = D()
+print(D.mro())
+# Output: [<class '__main__.D'>, <class '__main__.B'>, <class '__main__.C'>, <class '__main__.A'>, <class 'object'>]
+obj.method()
+
+# D method
+# B method
+# C method
