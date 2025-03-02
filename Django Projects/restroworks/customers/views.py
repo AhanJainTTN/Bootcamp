@@ -54,7 +54,7 @@ def retrieve_customer(request, customer_id):
     # get_object_or_404(): calls get() on a given model manager, but it raises Http404 instead of the model’s DoesNotExist exception.
     customer = get_object_or_404(Customer, id=customer_id)
 
-    # logged-in user can retrieve only their own profile
+    # request.user returns the model instance logged-in user can retrieve only their own profile
     if request.user == customer.user or request.user.is_staff:
         return JsonResponse(
             {

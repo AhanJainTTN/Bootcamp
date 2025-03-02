@@ -4,9 +4,10 @@ from menu.models import MenuItem
 
 # Better to use numbers instead of 'C, IK, D' to improve query performance.
 STATUS_CHOICES = (
-    ("Confirmed", 1),
-    ("In Kitchen", 2),
-    ("Delivered", 3),
+    (1, "Confirmed"),
+    (2, "In Kitchen"),
+    (3, "Delivered"),
+    (4, "Cancelled"),
 )
 
 
@@ -16,9 +17,7 @@ class Order(models.Model):
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="orders"
     )
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default="Confirmed"
-    )
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,12 +36,6 @@ class OrderItem(models.Model):
 
     def total_price(self):
         return self.quantity * self.price
-
-    # only update if price is not set otherwise it will update everytime the order is updated
-    def save(self, *args, **kwargs):
-        if not self.price:
-            self.price = self.menu_item.price
-        super().save(*args, **kwargs)
 
 
 # Flow: Create Order object -> Create all related OrderItem objects (price is updated on save()) -> Update Order.total_price using calculate_total().
