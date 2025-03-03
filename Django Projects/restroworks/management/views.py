@@ -1,9 +1,11 @@
 from django.http import HttpResponse
 
 # from django.shortcuts import render, redirect
+
 # from django.db.models import Q
 # from management.models import Customer, Order, MenuItem
 # from management.forms import CustomerForm, MenuItemForm
+
 # from django.urls import reverse
 
 # # To-Do
