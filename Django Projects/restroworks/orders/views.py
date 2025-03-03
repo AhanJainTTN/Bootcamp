@@ -10,7 +10,6 @@ from menu.models import MenuItem
 # The difference is that filter returns a queryset object, wheras get returns the required object. If you use filter(), you typically do this whenever you expect more than just one object that matches your criteria. If no item was found matching your criteria, filter() returns am empty queryset without throwing an error.
 
 
-# To-Do: Add support for guest users.
 @login_required
 def create_order(request):
     if request.method == "POST":
@@ -45,21 +44,47 @@ def create_order(request):
 
 
 @login_required
-def retrieve_order(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-
-    if request.user == order.customer.user or request.user.is_staff:
+def retrieve_all_customer_orders(request):
+    orders = Order.objects.filter(customer__user=request.user)
+    all_orders = []
+    for order in orders:
         order_data = {
             "id": order.id,
             "customer": order.customer.id,
             "status": order.get_status_display(),
-            "total_price": str(order.total_price),
+            "total_price": order.total_price,
             "items": [
                 {
                     "menu_item": item.menu_item.name,
                     "quantity": item.quantity,
-                    "price": float(item.price),
-                    "total_price": float(item.total_price()),
+                    "price": item.price,
+                    "total_price": item.total_price(),
+                }
+                for item in order.items.all()
+            ],
+            "created_at": order.created_at,
+        }
+        all_orders.append(order_data)
+
+    return JsonResponse(all_orders, safe=False)
+
+
+@login_required
+def retrieve_order(request, order_id):
+
+    if request.user == order.customer.user or request.user.is_staff:
+        order = get_object_or_404(Order, id=order_id)
+        order_data = {
+            "id": order.id,
+            "customer": order.customer.id,
+            "status": order.get_status_display(),
+            "total_price": order.total_price,
+            "items": [
+                {
+                    "menu_item": item.menu_item.name,
+                    "quantity": item.quantity,
+                    "price": item.price,
+                    "total_price": item.total_price(),
                 }
                 for item in order.items.all()
             ],
