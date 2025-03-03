@@ -1,11 +1,10 @@
 import json
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from menu.models import MenuItem
+from menu.forms import MenuItemForm
 
 # To-Do
 # Create an Item
@@ -20,29 +19,55 @@ from menu.models import MenuItem
 # Fat Model, Thin Views
 # login_required is not redundant here - why? - login_required only ensures a user is authenticated and does not check permissions - it also redirects to the login page if not authenticated
 # we still need to explicity check if a staff member is creating the menu item
+# @login_required
+# def create_item(request):
+
+#     if request.user.is_staff:
+
+#         if request.method == "POST":
+
+#             try:
+#                 MenuItem.objects.create(
+#                     name=request.POST.get("name"),
+#                     description=request.POST.get("description"),
+#                     price=request.POST.get("price"),
+#                     image=request.FILES.get("image"),
+#                 )
+
+#                 return JsonResponse({"message": "Item successfully added."})
+
+#             except IntegrityError as e:
+#                 return JsonResponse({"error": f"Error while adding item. {e}"})
+
+#         return JsonResponse({"error": "Invalid request method."}, status=405)
+
+#     return JsonResponse({"error": "Unauthorised access."}, status=403)
+
+
+# with form
 @login_required
 def create_item(request):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Unauthorised access."}, status=403)
 
-    if request.user.is_staff:
+    if not request.method == "POST":
+        menu_item_form = MenuItemForm()
+        return render(request, "menu-item_form.html", {"form": menu_item_form})
 
-        if request.method == "POST":
+    menu_item_form = MenuItemForm(request.POST, request.FILES)
+    print("Files: ", request.FILES)
+    if menu_item_form.is_valid():
+        print("Valid Form.")
+        cleaned_data = menu_item_form.cleaned_data
+        print("Cleaned Data: ", cleaned_data)
+        menu_item_form.save()
 
-            try:
-                MenuItem.objects.create(
-                    name=request.POST.get("name"),
-                    description=request.POST.get("description"),
-                    price=request.POST.get("price"),
-                    image=request.FILES.get("image"),
-                )
+        return JsonResponse({"message": "Item successfully added."})
 
-                return JsonResponse({"message": "Item successfully added."})
-
-            except IntegrityError as e:
-                return JsonResponse({"error": f"Error while adding item. {e}"})
-
-        return JsonResponse({"error": "Invalid request method."}, status=405)
-
-    return JsonResponse({"error": "Unauthorised access."}, status=403)
+    else:
+        return JsonResponse(
+            {"error": f"Error while adding item. {menu_item_form.errors}"}
+        )
 
 
 def retrieve_item(request, item_id):
