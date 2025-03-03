@@ -6,6 +6,26 @@ from django.contrib.auth.models import User
 from django.db import transaction, IntegrityError
 from django.contrib.auth.decorators import login_required
 from customers.models import Customer
+from django.shortcuts import render, redirect
+from .forms import CustomerForm
+
+
+def signup(request):
+    form = CustomerForm()
+    if request.method == "POST":
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            customer = form.save()
+            if customer:
+                return JsonResponse(
+                    {
+                        "message": "Customer registered successfully",
+                        "customer_id": customer.id,
+                    },
+                    status=201,
+                )
+
+    return render(request, "customer_form.html", {"form_data": form})
 
 
 def customer_signup(request):
