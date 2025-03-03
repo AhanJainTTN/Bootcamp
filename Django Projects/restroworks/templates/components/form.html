@@ -1,0 +1,44 @@
+{% comment %} <div class="instructions">
+  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sequi illum illo,
+  autem esse nam unde nihil consectetur quod culpa eos explicabo porro
+  accusantium dicta ullam reprehenderit enim ad iste? Sequi!
+</div>
+<form class="main-form" action="">
+  <div class="input-box">
+    <label class="input-label">Name</label>
+    <input class="input-field" placeholder="Enter name" />
+  </div>
+  <div class="input-box">
+    <label class="input-label">Name</label>
+    <input class="input-field" placeholder="Enter name" />
+  </div>
+  <div class="input-box">
+    <label class="input-label">Name</label>
+    <input class="input-field" placeholder="Enter name" />
+  </div>
+</form> {% endcomment %}
+
+{% comment %} <div class="instructions">
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi illum illo,
+  autem esse nam unde nihil consectetur quod culpa eos explicabo porro
+  accusantium dicta ullam reprehenderit enim ad iste? Sequi!
+</div> {% endcomment %}
+
+<form class="main-form" method="post" autocomplete="off" id="main-form">
+  {% csrf_token %}
+
+  {% for field in form %}
+    <div class="input-box">
+      <label class="input-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      
+      {% if field.errors %}
+        <small class="error">{{ field.errors.0 }}</small>
+      {% endif %}
+    </div>
+  {% endfor %}
+  <div class="buttons">
+    {% include "components/button.html" with button_type="submit" button_text="Submit" button_colour="1" %}
+    {% include "components/button.html" with button_type="submit" button_text="Reset" button_colour="3" %}
+  </div>
+</form>
