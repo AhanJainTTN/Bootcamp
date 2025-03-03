@@ -12,6 +12,11 @@ urlpatterns = [
         views.track_order_status,
         name="track_order_status",
     ),
+    path(
+        "view/all/customer",
+        views.retrieve_all_customer_orders,
+        name="retrieve_all_customer_orders",
+    ),
     path("update/<int:order_id>", views.update_order, name="update_order"),
     path("cancel/<int:order_id>", views.cancel_order, name="cancel_order"),
     path("delete/<int:order_id>", views.delete_order, name="delete_order"),
