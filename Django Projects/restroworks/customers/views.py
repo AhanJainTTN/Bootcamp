@@ -62,7 +62,7 @@ def retrieve_customer(request, customer_id):
                 "username": customer.user.username,
                 "email": customer.user.email,
                 "phone": customer.phone,
-                "created_at": customer.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "created_at": customer.created_at,
             }
         )
 
