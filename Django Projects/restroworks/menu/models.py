@@ -37,6 +37,9 @@ class MenuItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)  # to track item changes
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 # FloatField for Ratings since we don’t require exact precision — small floating-point errors don’t matter.
 # DecimalField for price since currency must always be accurate and this is the field which will be used for final order value calculations.
