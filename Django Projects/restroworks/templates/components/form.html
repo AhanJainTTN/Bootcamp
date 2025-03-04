@@ -24,7 +24,7 @@
   accusantium dicta ullam reprehenderit enim ad iste? Sequi!
 </div> {% endcomment %}
 
-<form class="main-form" method="post" autocomplete="off" id="main-form">
+<form class="main-form" method="post" autocomplete="off" id="main-form" enctype="multipart/form-data">
   {% csrf_token %}
 
   {% for field in form %}
