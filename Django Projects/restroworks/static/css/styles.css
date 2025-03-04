@@ -112,7 +112,10 @@ small {
 
 small.error {
   color: #c6362e;
-  /* margin-top: 4px; */
+  /* margin-left: 8px; */
+  /* margin-right: 8px; */
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .input-label {
@@ -227,6 +230,46 @@ small.error {
 
 .btn-primary:active {
   box-shadow: none;
+}
+
+.btn-secondary {
+  min-width: 30%;
+  min-height: 3.25rem;
+  appearance: none;
+  background-color: var(--text);
+  border: 2px solid var(--background);
+  border-radius: 0.6rem;
+  color: var(--background);
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+  outline: none;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+  text-decoration: none;
+  transition: all 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  will-change: transform;
+}
+
+.btn-secondary:disabled {
+  pointer-events: none;
+}
+
+.btn-secondary:hover {
+  color: #fff;
+  background-color: var(--accent);
+  box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+  transform: translateY(-1.5px);
+}
+
+.btn-secondary:active {
+  box-shadow: none;
+  transform: translateY(0);
 }
 
 .clr-1:hover {
