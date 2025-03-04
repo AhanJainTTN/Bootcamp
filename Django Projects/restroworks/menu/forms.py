@@ -1,6 +1,7 @@
 from django import forms
 from menu.models import MenuItem
-
+from django.core.exceptions import ValidationError
+from .validators import validate_image
 
 # https://docs.djangoproject.com/en/5.1/topics/forms/
 # https://docs.djangoproject.com/en/5.1/ref/forms/widgets/
@@ -10,17 +11,30 @@ from menu.models import MenuItem
 
 class MenuItemForm(forms.ModelForm):
     # no need to redefine fields and use separate save functions to commit to database. Defining model in meta class allows us to link form fields to the model
+
+    def clean_image(self):
+        image = self.cleaned_data["image"]
+        validate_image(image)
+
+        return image
+
     class Meta:
         model = MenuItem
-        fields = ["name", "description", "image", "price"]
+        fields = ["name", "description", "price", "image"]
 
         widgets = {
             "name": forms.TextInput(
-                attrs={"class": "form__input", "placeholder": "Menu Item Name"}
+                attrs={"class": "input-field", "placeholder": "Enter item"}
             ),
             "description": forms.Textarea(
-                attrs={"class": "form__input", "placeholder": "Description"}
+                attrs={"class": "input-field", "placeholder": "Enter description"}
+            ),
+            "price": forms.NumberInput(
+                attrs={
+                    "class": "input-field",
+                    "placeholder": "Enter price",
+                    "min": 0,
+                }
             ),
             "image": forms.ClearableFileInput(),
-            "price": forms.NumberInput(attrs={"class": "form__input", "min": "0"}),
         }
