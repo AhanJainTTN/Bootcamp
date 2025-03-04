@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from .forms import CustomerForm
 
 
-def signup(request):
+def customer_signup(request):
     form = CustomerForm()
     if request.method == "POST":
         form = CustomerForm(request.POST)
@@ -25,48 +25,48 @@ def signup(request):
                     status=201,
                 )
 
-    return render(request, "customer_form.html", {"form_data": form})
+    return render(request, "signup.html", {"form_data": form})
 
 
-def customer_signup(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        phone = request.POST.get("phone")
+# def customer_signup(request):
+#     if request.method == "POST":
+#         username = request.POST.get("username")
+#         email = request.POST.get("email")
+#         password = request.POST.get("password")
+#         phone = request.POST.get("phone")
 
-        # why filter and not get
-        # filter(username=username).exists() only checks if a record exists and returns True or False
-        # get(username=username) retrieves the entire user object, which is unnecessary if we just need to check existence
-        # get() rraises an Error If No Match Is Found
-        if User.objects.filter(username=username).exists():
-            return JsonResponse({"error": "Username already taken"}, status=400)
+#         # why filter and not get
+#         # filter(username=username).exists() only checks if a record exists and returns True or False
+#         # get(username=username) retrieves the entire user object, which is unnecessary if we just need to check existence
+#         # get() rraises an Error If No Match Is Found
+#         # if User.objects.filter(username=username).exists():
+#         #     return JsonResponse({"error": "Username already taken"}, status=400)
 
-        if User.objects.filter(email=email).exists():
-            return JsonResponse({"error": "Email already registered"}, status=400)
+#         if User.objects.filter(email=email).exists():
+#             return JsonResponse({"error": "Email already registered"}, status=400)
 
-        try:
-            # why use atomic? - to ensure rollback on failure - why? - if a user enters a phone number which already exists, this raises an IntegrityError and no user is added to the Customers table - however since we are adding to the user table before, the user does get added to auth_user - we want to ensuure a user only gets added to auth_user if no IntegrityError is raised - why not just check for unique phone number? - defeats the point of using integrity constraints while using models and also not very scalable - not reasonable to find and check each field if our model had a lot of fields
-            with transaction.atomic():
-                user = User.objects.create_user(
-                    username=username, email=email, password=password
-                )
-                customer = Customer.objects.create(user=user, phone=phone)
+#         try:
+#             # why use atomic? - to ensure rollback on failure - why? - if a user enters a phone number which already exists, this raises an IntegrityError and no user is added to the Customers table - however since we are adding to the user table before, the user does get added to auth_user - we want to ensuure a user only gets added to auth_user if no IntegrityError is raised - why not just check for unique phone number? - defeats the point of using integrity constraints while using models and also not very scalable - not reasonable to find and check each field if our model had a lot of fields
+#             with transaction.atomic():
+#                 user = User.objects.create_user(
+#                     username=username, email=email, password=password
+#                 )
+#                 customer = Customer.objects.create(user=user, phone=phone)
 
-                return JsonResponse(
-                    {
-                        "message": "Customer registered successfully",
-                        "customer_id": customer.id,
-                    },
-                    status=201,
-                )
+#                 return JsonResponse(
+#                     {
+#                         "message": "Customer registered successfully",
+#                         "customer_id": customer.id,
+#                     },
+#                     status=201,
+#                 )
 
-        except IntegrityError:
-            return JsonResponse(
-                {"error": "Integrity error, registration failed"}, status=400
-            )
+#         except IntegrityError:
+#             return JsonResponse(
+#                 {"error": "Integrity error, registration failed"}, status=400
+#             )
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+#     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 @login_required
