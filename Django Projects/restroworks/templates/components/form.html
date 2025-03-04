@@ -37,8 +37,13 @@
       {% endif %}
     </div>
   {% endfor %}
+
+  {% for error in form.non_field_errors %}
+    <small class="error">{{ error }}</small>
+  {% endfor %}
+
   <div class="buttons">
-    {% include "components/button.html" with button_type="submit" button_text="Submit" button_colour="1" %}
-    {% include "components/button.html" with button_type="submit" button_text="Reset" button_colour="3" %}
+    {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Submit" button_colour="1" %}
+    {% include "components/button.html" with button_type="reset" button_style="btn-primary" button_text="Reset" button_colour="3" %}
   </div>
 </form>
