@@ -146,6 +146,10 @@ small.error {
   box-shadow: 0 0 3px var(--accent);
 }
 
+#id_image {
+  margin-bottom: 4px;
+}
+
 .buttons {
   display: flex;
   align-items: center;
