@@ -1,16 +1,14 @@
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
+from .forms import CustomerAuthenticationForm
+from django.shortcuts import render
 
 
 def user_login(request):
+    form = CustomerAuthenticationForm()
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+        form = CustomerAuthenticationForm(data=request.POST)
+        if form.is_valid():
+            return JsonResponse({"message": "Login successful."}, status=200)
 
-        user = authenticate(request, username=username, password=password)
-
-        if user:
-            login(request, user)
-            return JsonResponse({"message": "Login successful"}, status=200)
-
-        return JsonResponse({"error": "Invalid credentials"}, status=400)
+    return render(request, "login.html", {"form_data": form})
