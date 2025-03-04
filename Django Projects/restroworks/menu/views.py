@@ -52,22 +52,16 @@ def create_item(request):
 
     if not request.method == "POST":
         menu_item_form = MenuItemForm()
-        return render(request, "menu-item_form.html", {"form": menu_item_form})
+        return render(request, "menu-item_form.html", {"form_data": menu_item_form})
 
     menu_item_form = MenuItemForm(request.POST, request.FILES)
-    print("Files: ", request.FILES)
+
     if menu_item_form.is_valid():
-        print("Valid Form.")
-        cleaned_data = menu_item_form.cleaned_data
-        print("Cleaned Data: ", cleaned_data)
         menu_item_form.save()
 
         return JsonResponse({"message": "Item successfully added."})
 
-    else:
-        return JsonResponse(
-            {"error": f"Error while adding item. {menu_item_form.errors}"}
-        )
+    return render(request, "menu-item_form.html", {"form_data": menu_item_form})
 
 
 def retrieve_item(request, item_id):
