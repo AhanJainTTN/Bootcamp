@@ -1,5 +1,5 @@
 from django.contrib import admin
-from orders.models import Order
+from orders.models import Order, OrderItem
 
 
 @admin.action(description="Mark selected orders as Delivered (3)")
@@ -13,3 +13,4 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Order, OrderAdmin)
+admin.site.register(OrderItem)
