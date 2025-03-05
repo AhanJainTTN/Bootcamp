@@ -47,21 +47,21 @@ from menu.forms import MenuItemForm
 # with form
 @login_required
 def create_item(request):
+
     if not request.user.is_staff:
         return JsonResponse({"error": "Unauthorised access."}, status=403)
 
-    if not request.method == "POST":
-        menu_item_form = MenuItemForm()
-        return render(request, "menu-item_form.html", {"form_data": menu_item_form})
+    form = MenuItemForm()
+    if request.method == "POST":
+        form = MenuItemForm(request.POST, request.FILES)
 
-    menu_item_form = MenuItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save()
+            if item:
+                form = MenuItemForm()
+            # return JsonResponse({"message": "Item successfully added."})
 
-    if menu_item_form.is_valid():
-        menu_item_form.save()
-
-        return JsonResponse({"message": "Item successfully added."})
-
-    return render(request, "menu-item_form.html", {"form_data": menu_item_form})
+    return render(request, "menu-item_form.html", {"form_data": form})
 
 
 def retrieve_item(request, item_id):
@@ -145,3 +145,7 @@ def delete_item(request, item_id):
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
     return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+
+def render_grid(request):
+    return render(request, "menu-item_grid.html")
