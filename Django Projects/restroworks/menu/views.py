@@ -148,4 +148,5 @@ def delete_item(request, item_id):
 
 
 def render_grid(request):
-    return render(request, "menu-item_grid.html")
+    menu_items = MenuItem.objects.all()
+    return render(request, "menu-item_grid.html", {"menu_items": menu_items})

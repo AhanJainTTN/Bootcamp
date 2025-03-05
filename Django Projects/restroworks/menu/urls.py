@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
     path("view/grid/", views.render_grid, name="render_grid"),
     path("create/", views.create_item, name="create_item"),
