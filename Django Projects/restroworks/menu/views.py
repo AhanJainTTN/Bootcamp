@@ -1,10 +1,16 @@
 import json
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from menu.models import MenuItem
 from menu.forms import MenuItemForm
+from orders.models import Order, OrderItem
+from customers.models import Customer
+from django.views.generic.edit import FormView
+
 
 # To-Do
 # Create an Item
@@ -44,41 +50,60 @@ from menu.forms import MenuItemForm
 #     return JsonResponse({"error": "Unauthorised access."}, status=403)
 
 
+class MenuItemFormView(FormView):
+    template_name = "menu-item_form.html"
+    form_class = MenuItemForm
+    # context_object_name = "form_data" # does not work with FormView and CreateView
+
+
 # with form
-@login_required
-def create_item(request):
-
-    if not request.user.is_staff:
-        return JsonResponse({"error": "Unauthorised access."}, status=403)
-
-    form = MenuItemForm()
-    if request.method == "POST":
-        form = MenuItemForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            item = form.save()
-            if item:
-                form = MenuItemForm()
-            # return JsonResponse({"message": "Item successfully added."})
-
-    return render(request, "menu-item_form.html", {"form_data": form})
+# @login_required
+# def create_item(request):
+def get_context_data(self, **kwargs):
+    kwargs["form_data"] = kwargs.pop("form")
+    return super(MenuItemFormView, self).get_context_data(**kwargs)
 
 
-def retrieve_item(request, item_id):
-    item = get_object_or_404(MenuItem, id=item_id)
-    return JsonResponse(
-        {
-            "id": item.id,
-            "name": item.name,
-            "description": item.description,
-            "rating": item.rating,
-            # "price": str(item.price),
-            "price": item.price,  # why str - DecimalField stores values as decimal.Decimal, which is not natively serializable by json module - "price": item.price causes TypeError
-            "image_url": item.image.url if item.image else None,
-            "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
-        }
-    )
+#     if not request.user.is_staff:
+#         return JsonResponse({"error": "Unauthorised access."}, status=403)
+
+#     form = MenuItemForm()
+#     if request.method == "POST":
+#         form = MenuItemForm(request.POST, request.FILES)
+
+#         if form.is_valid():
+#             item = form.save()
+#             if item:
+#                 form = MenuItemForm()
+#             # return JsonResponse({"message": "Item successfully added."})
+
+#     return render(request, "menu-item_form.html", {"form_data": form})
+
+
+# DetailView makes it more convenient to get a single item
+# Override get() method to customise object retrieval
+# Override get_context_data() to customise context data sent to template
+class MenuItemDetailView(DetailView):
+    model = MenuItem
+    template_name = "menuitem.html"
+    context_object_name = "menu_item"
+
+
+# def retrieve_item(request, item_id):
+#     item = get_object_or_404(MenuItem, id=item_id)
+#     return JsonResponse(
+#         {
+#             "id": item.id,
+#             "name": item.name,
+#             "description": item.description,
+#             "rating": item.rating,
+#             # "price": str(item.price),
+#             "price": item.price,  # why str - DecimalField stores values as decimal.Decimal, which is not natively serializable by json module - "price": item.price causes TypeError
+#             "image_url": item.image.url if item.image else None,
+#             "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+#             "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+#         }
+#     )
 
 
 # create() vs save()
@@ -93,14 +118,24 @@ def retrieve_item(request, item_id):
 # use with settings.MEDIA_URL to get the full url: settings.MEDIA_URL + item["image"]
 
 
-def list_items(request):
-    # returns a list of dictionaries, which is JSON serializable.
-    items = MenuItem.objects.all().values(
-        "id", "name", "description", "rating", "price", "image"
-    )
-    # safe=False: https://www.django-antipatterns.com/antipattern/return-a-jsonresponse-with-safe-false.html
-    # The safe boolean parameter defaults to True. If it’s set to False, any object can be passed for serialization (otherwise only dict instances are allowed). If safe is True and a non-dict object is passed as the first argument, a TypeError will be raised.
-    return JsonResponse(list(items), safe=False)
+# ListView makes displaying a list of objects convenient
+# Override get_queryset() method to customise object retrieval
+# Override get_context_data() to customise context data sent to template
+class MenuItemListView(ListView):
+    template_name = "menuitem_list.html"
+    paginate_by = 2  # adding pagination
+    model = MenuItem
+    context_object_name = "menu_items"
+
+
+# def list_items(request):
+#     # returns a list of dictionaries, which is JSON serializable.
+#     items = MenuItem.objects.all().values(
+#         "id", "name", "description", "rating", "price", "image"
+#     )
+#     # safe=False: https://www.django-antipatterns.com/antipattern/return-a-jsonresponse-with-safe-false.html
+#     # The safe boolean parameter defaults to True. If it’s set to False, any object can be passed for serialization (otherwise only dict instances are allowed). If safe is True and a non-dict object is passed as the first argument, a TypeError will be raised.
+#     return JsonResponse(list(items), safe=False)
 
 
 # Why POST and not PUT - images are sent in request.FILES which does not work with PUT
@@ -147,6 +182,24 @@ def delete_item(request, item_id):
     return JsonResponse({"error": "Unauthorized access"}, status=403)
 
 
+@login_required
 def render_grid(request):
     menu_items = MenuItem.objects.all()
+    if request.method == "POST":
+        customer = Customer.objects.get(user=request.user)
+        order = Order.objects.create(customer=customer)
+        for item_id, quantity in dict(request.POST).items():
+            if item_id != "csrfmiddlewaretoken":
+                menu_item = MenuItem.objects.get(id=item_id)
+                order_item = OrderItem.objects.create(
+                    order=order,
+                    menu_item=menu_item,
+                    quantity=quantity[0],
+                    price=menu_item.price,
+                )
+
+        order.calculate_total()
+        return JsonResponse(
+            {"message": f"Order with id {order.id} created successfully."}
+        )
     return render(request, "menu-item_grid.html", {"menu_items": menu_items})
