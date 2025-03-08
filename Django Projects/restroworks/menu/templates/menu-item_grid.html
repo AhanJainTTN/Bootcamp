@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Menu Items - Restroworks{%endblock title %} 
+{% block title %}Place Order - Restroworks{%endblock title %} 
 {% block content %}
-<form class="menu-item-grid">
-    {% for item in menu_items %}
+<form class="menu-item-grid" method="post" autocomplete="n/a">
+    {% csrf_token %}
+    <div class="grid-content">
+        {% for item in menu_items %}
         <div class="product-card">
             <div class="product-image">
                 <img src="{{ item.image.url }}" alt="{{ item.name }}">
@@ -11,10 +13,15 @@
             <div class="product-title"><strong>{{ item.name }}</strong></div>
             <div class="product-desc"><small>{{ item.description }}</small></div>
             <div class="product-info">
-            <div class="product-price"><strong>₹{{ item.price }}</strong></div>
-            <label for="product-quantity"></label>
-            <input type="number" class="input-field step" id="points" name="points" value="0" min="0" />
+                <div class="product-price"><strong>₹{{ item.price }}</strong></div>
+                <label for="{{ item.id }}"></label>
+                <input type="number" name="{{ item.id }}" class="input-field step" id="{{ item.id }}" value="0" min="0" />
             </div>
         </div>
     {% endfor %}
+    </div>
+    <div class="buttons">
+        {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Place Order" button_colour="1" %}
+    </div>
+</form>
 {% endblock content %}
