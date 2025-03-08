@@ -28,10 +28,11 @@
   {% csrf_token %}
 
   {% for field in form %}
+
     <div class="input-box">
       <label class="input-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
       {{ field }}
-      
+
       {% if field.errors %}
         <small class="error">{{ field.errors.0 }}</small>
       {% endif %}

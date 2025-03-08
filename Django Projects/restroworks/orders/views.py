@@ -6,10 +6,9 @@ from .models import Order, OrderItem
 from customers.models import Customer
 from menu.models import MenuItem
 
+
 # filter() vs get()
 # The difference is that filter returns a queryset object, wheras get returns the required object. If you use filter(), you typically do this whenever you expect more than just one object that matches your criteria. If no item was found matching your criteria, filter() returns am empty queryset without throwing an error.
-
-
 @login_required
 def create_order(request):
     if request.method == "POST":
