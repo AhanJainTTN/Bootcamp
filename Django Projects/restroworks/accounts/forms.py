@@ -3,7 +3,6 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from customers.models import Customer
 from django.db import IntegrityError, transaction
-from django.core.exceptions import ValidationError
 
 
 # TODO: Is it better to use a clean_field function on a unique field to check for uniqueness using Objects.filter() in addition to having a UNIQUE constraint at the database level or let the database check it and handle the IntegrityError exception it raises. If the database is going to check it regardless, is that not better for performance? If yes, does this mean in this context we use clean_field() mainly for convenience?
@@ -67,12 +66,12 @@ class CustomerForm(UserCreationForm):
             {"class": "input-field", "placeholder": "Enter password"}
         )
 
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        if User.objects.filter(email=email).exists():
-            raise ValidationError
+    # def clean_email(self):
+    #     email = self.cleaned_data["email"]
+    #     if User.objects.filter(email=email).exists():
+    #         raise ValidationError(message="Email Already In Use.")
 
-        return email
+    #     return email
 
     def save(self):
         try:
@@ -86,7 +85,7 @@ class CustomerForm(UserCreationForm):
             return customer
         # TODO: Find a better way. How much validation? HTML -> Forms -> Models. Which is the best practice?
         except IntegrityError as e:
-            print(str(e.__cause__))
+            # print(str(e.__cause__))
             cause = str(e.__cause__).split(".")[1]
             self.add_error(f"{cause}", "Already in use. Please enter a unique value.")
 
