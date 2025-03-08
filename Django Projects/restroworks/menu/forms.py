@@ -13,11 +13,13 @@ from .validators import validate_image
 # Defining model in meta class allows us to link form fields to the model
 class MenuItemForm(forms.ModelForm):
 
-    def clean_image(self):
-        image = self.cleaned_data["image"]
-        validate_image(image)
+    # redundant as model validates this image and if invalid raises a ValidationError
+    # which is stored in form.errors
+    # def clean_image(self):
+    #     image = self.cleaned_data["image"]
+    #     validate_image(image)
 
-        return image
+    #     return image
 
     class Meta:
         model = MenuItem
