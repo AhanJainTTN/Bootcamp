@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Menu Items - Restroworks{%endblock title %} 
+{% block content %}
+<div class="grid-content">
+    {% comment %} {% for item in menu_items %} {% endcomment %}
+    <div class="product-card">
+        <div class="product-image">
+            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+        </div>
+        <div class="product-title"><strong>{{ item.name }}</strong></div>
+        <div class="product-desc"><small>{{ item.description }}</small></div>
+        <div class="product-price"><strong>₹{{ item.price }}</strong></div>
+    </div>
+{% comment %} {% endfor %} {% endcomment %}
+</div>
+{% if page_obj %}
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endif %}
+{% endblock content %}
