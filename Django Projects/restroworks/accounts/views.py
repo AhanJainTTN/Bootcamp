@@ -63,6 +63,10 @@ class BulkUploadForm(FormView):
                     continue
 
                 try:
+                    # Check if user already exists - faster than hashing and letting the database handle it.
+                    if User.objects.filter(username=username).exists():
+                        raise IntegrityError("User already present in database.")
+
                     validate_password(password)
                     user = User(
                         username=username,
@@ -96,11 +100,6 @@ class BulkUploadForm(FormView):
 
         # ensures that the default behavior of form_valid() is executed, which redirects the user to the success URL (get_success_url()).
         return super().form_valid(form)
-
-
-@login_required
-def create_from_excel(request):
-    return render(request, "excel_form.html")
 
 
 def user_signup(request):

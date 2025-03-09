@@ -10,15 +10,7 @@ from menu.forms import MenuItemForm
 from orders.models import Order, OrderItem
 from customers.models import Customer
 from django.views.generic.edit import FormView
-
-
-# To-Do
-# Create an Item
-# Retrieve an Item
-# List All Items
-# Update Item Information
-# Delete an Item
-
+from django.views import View
 
 # using get instead of indexing operator so model itself handles IntegrityError
 # using indexing operator (will necessitate handling a KeyError) or explicit NULL checks is redundant
@@ -62,6 +54,23 @@ class MenuItemFormView(FormView):
     def form_valid(self, form):
         form.save()  # Explicitly save the object
         return super().form_valid(form)
+
+
+class MenuItemCreateView(View):
+    template_name = "menu-item_form.html"
+
+    def get(self, request):
+        form = MenuItemForm()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request):
+        form = MenuItemForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect("/menu/view/all")
+
+        return render(request, self.template_name, {"form": form})
 
 
 # with form

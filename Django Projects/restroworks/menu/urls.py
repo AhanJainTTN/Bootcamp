@@ -5,8 +5,13 @@ from . import views
 urlpatterns = [
     path("view/grid/", views.render_grid, name="render_grid"),
     # path("create/", views.create_item, name="create_item"),
+    # path(
+    #     "create/", login_required(views.MenuItemFormView.as_view()), name="create_item"
+    # ),
     path(
-        "create/", login_required(views.MenuItemFormView.as_view()), name="create_item"
+        "create/",
+        login_required(views.MenuItemCreateView.as_view()),
+        name="create_item",
     ),
     # path("view/<int:item_id>", views.retrieve_item, name="retrieve_item"),
     path(
