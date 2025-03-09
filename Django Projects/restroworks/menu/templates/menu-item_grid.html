@@ -7,9 +7,11 @@
     <div class="grid-content">
         {% for item in menu_items %}
         <div class="product-card">
+            {% if item.image %}
             <div class="product-image">
                 <img src="{{ item.image.url }}" alt="{{ item.name }}">
             </div>
+            {% endif %}
             <div class="product-title"><strong>{{ item.name }}</strong></div>
             <div class="product-desc"><small>{{ item.description }}</small></div>
             <div class="product-info">
