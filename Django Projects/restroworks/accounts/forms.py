@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from customers.models import Customer
 from django.db import IntegrityError, transaction
-
+from .validators import validate_file_extension
 
 # TODO: Is it better to use a clean_field function on a unique field to check for uniqueness using Objects.filter() in addition to having a UNIQUE constraint at the database level or let the database check it and handle the IntegrityError exception it raises. If the database is going to check it regardless, is that not better for performance? If yes, does this mean in this context we use clean_field() mainly for convenience?
 
@@ -170,3 +170,9 @@ class CustomerAuthenticationForm(AuthenticationForm):
     #             attrs={"class": "input-field", "placeholder": "Enter email"}
     #         ),
     #     }
+
+
+class ExcelForm(forms.Form):
+    excel_file = forms.FileField(
+        required=True, allow_empty_file=False, validators=[validate_file_extension]
+    )
