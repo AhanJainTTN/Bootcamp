@@ -4,14 +4,37 @@
   box-sizing: border-box;
 }
 
-:root {
+/* :root {
   --text: #000000;
   --background: #ffffff;
   --primary: #544ae3;
   --accent: #1ed885;
+} */
+
+:root {
+  --text: #09332e;
+  --background: #fff4eb;
+  --primary: #09332e;
+  --secondary: #331702;
+  --accent: #167a6d;
 }
 
 body {
+  font-family: "Montserrat";
+  font-weight: 400;
+  background-color: var(--background);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Libre Baskerville";
+  font-weight: 700;
+}
+
+/* body {
   font-family: "Montserrat";
   font-weight: 400;
 }
@@ -23,7 +46,7 @@ h4,
 h5 {
   font-family: "Montserrat";
   font-weight: 500;
-}
+} */
 
 html {
   font-size: 100%;
@@ -75,13 +98,45 @@ small {
   justify-content: space-between;
 }
 
-.header-content img {
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* max-width: 260px; */
+}
+
+.navbar-title {
+  color: var(--primary);
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  /* justify-content: space-evenly; */
+}
+
+a:link,
+a:visited {
+  text-decoration: none;
+  color: var(--primary);
+  font-family: "Libre Baskerville";
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+.navbar-logo img {
   width: 8%;
 }
 
-.header-content-spacer {
+/* .header-content-spacer {
   width: 17.5%;
-}
+} */
+
 .spacer {
   width: 100%;
   height: 6rem;
@@ -154,13 +209,6 @@ small.error {
   margin-bottom: 4px;
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  margin: 8px;
-}
-
 .instructions {
   width: 40%;
   display: flex;
@@ -212,7 +260,7 @@ small.error {
   width: 20%;
 }
 
-.btn-primary {
+/* .btn-primary {
   min-width: 8rem;
   min-height: 3.5rem;
   background-color: #e8e8e8;
@@ -288,7 +336,7 @@ small.error {
   background-color: #c6362e;
   box-shadow: 0 0 4px #c6362e;
   color: var(--background);
-}
+} */
 
 .grid-content {
   display: flex;
@@ -362,6 +410,46 @@ small.error {
   padding: 10%;
 }
 
-.landing-main h1{
+.landing-main h1 {
   color: var(--background);
+}
+
+.btn-primary,
+.btn-secondary {
+  color: white;
+  background-color: var(--primary);
+  font-weight: 900;
+  font-family: "Libre Baskerville";
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  line-height: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+  cursor: pointer;
+  text-align: center;
+  align-items: center;
+  border: none;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  background-color: var(--accent);
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px;
+  gap: 1rem;
+}
+
+.header-content:first-child > div {
+  margin-right: auto;
+}
+
+.header-content:last-child > div {
+  margin-left: auto;
 }

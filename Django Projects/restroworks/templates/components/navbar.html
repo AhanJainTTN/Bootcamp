@@ -1,9 +1,20 @@
 {% load static %}
 <header class="header">
   <div class="header-content container">
-    <h3>{{ title }}</h3>
-    <img src="{% static logo %}" alt="Restaurant Logo" />
-    <div class="header-content-spacer"></div>
+    <div class="navbar-logo">
+      {% comment %} <img src="{% static logo %}" alt="Restaurant Logo" /> {% endcomment %}
+      <h3 class="navbar-title">{{ title }}</h3>
+    </div>
+    <div class="navbar-links">
+      <a href="/menu/view/grid">Menu</a>
+      <a href="#">Profile</a>
+      <a href="#">Orders</a>
+      <a href="#">Profile</a>
+    </div>
+    <div class="buttons">
+      {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Login" button_colour="1" %}
+      {% include "components/button.html" with button_type="reset" button_style="btn-primary" button_text="Signup" button_colour="3" %}
+    </div>
   </div>
 </header>
 <div class="spacer"></div>
