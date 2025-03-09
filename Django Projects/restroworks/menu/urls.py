@@ -10,7 +10,7 @@ urlpatterns = [
     ),
     # path("view/<int:item_id>", views.retrieve_item, name="retrieve_item"),
     path(
-        "view/<int:pk>",
+        "view/<int:pk>/",
         login_required(views.MenuItemDetailView.as_view()),
         name="retrieve_item",
     ),
