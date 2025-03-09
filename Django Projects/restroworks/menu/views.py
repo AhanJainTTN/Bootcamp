@@ -50,20 +50,23 @@ from django.views.generic.edit import FormView
 #     return JsonResponse({"error": "Unauthorised access."}, status=403)
 
 
+# must override form_valid to save instance
+# else django just validates the form
+# alternate - use CreateView if working with ModelForm
 class MenuItemFormView(FormView):
     template_name = "menu-item_form.html"
     form_class = MenuItemForm
+    success_url = "/menu/view/all"
+
     # context_object_name = "form_data" # does not work with FormView and CreateView
+    def form_valid(self, form):
+        form.save()  # Explicitly save the object
+        return super().form_valid(form)
 
 
 # with form
 # @login_required
 # def create_item(request):
-def get_context_data(self, **kwargs):
-    kwargs["form_data"] = kwargs.pop("form")
-    return super(MenuItemFormView, self).get_context_data(**kwargs)
-
-
 #     if not request.user.is_staff:
 #         return JsonResponse({"error": "Unauthorised access."}, status=403)
 
