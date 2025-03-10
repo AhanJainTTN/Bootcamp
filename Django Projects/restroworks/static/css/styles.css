@@ -205,10 +205,10 @@ small.error {
 }
 
 .table-holder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 100%;
+  /* display: flex; */
+  /* align-items: center;
+  justify-content: center; */
+  width: 100%;
 }
 
 .query-table {
@@ -241,30 +241,59 @@ small.error {
   /* border-bottom: 1px solid black; */
 }
 
-.nested-table {
+td.order-items {
+  text-align: left;
+  width: 30%;
+}
+
+.order-id {
+  width: 10%;
+}
+
+.order-date {
+  width: 15%;
+}
+
+.order-status,
+.order-total {
+  width: 12.5%;
+}
+
+.order-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
   width: 100%;
-  border-collapse: collapse;
 }
 
-.nested-table th {
-  background-color: var(--background);
-  color: black;
-  padding: 8px;
-  font-size: small;
-  font-weight: 700;
+.summary-table-holder {
+  width: 50%;
 }
 
-.nested-table td {
-  font-size: small;
+td.menu-item-name {
+  text-align: left;
 }
 
-.nested-table tr:nth-child(even) {
-  background-color: var(--background);
+tr:last-child {
+  background-color: coral;
+  border-radius: 0 0 0 8px;
+}
+
+.overview h5 {
+  margin-bottom: 8px;
+  font-family: "Montserrat";
+  font-weight: 600;
 }
 
 .hide {
   display: none;
 }
+
+/* a.order-actions:visited,
+a.order-actions:link {
+  display: block;
+  margin-bottom: 8px;
+} */
 
 .grid-content {
   display: flex;
@@ -389,4 +418,13 @@ small.error {
 
 .new-user a {
   font-size: 0.875rem;
+}
+
+.heading {
+  display: flex;
+  width: 100%;
+}
+
+.heading h3 {
+  font-weight: 400;
 }

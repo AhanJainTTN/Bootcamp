@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
 from customers.models import Customer
 from menu.models import MenuItem
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 
 # filter() vs get()
@@ -68,41 +70,53 @@ def retrieve_all_customer_orders(request):
     return JsonResponse(all_orders, safe=False)
 
 
-@login_required
-def retrieve_order(request, order_id):
-
-    if request.user == order.customer.user or request.user.is_staff:
-        order = get_object_or_404(Order, id=order_id)
-        order_data = {
-            "id": order.id,
-            "customer": order.customer.id,
-            "status": order.get_status_display(),
-            "total_price": order.total_price,
-            "items": [
-                {
-                    "menu_item": item.menu_item.name,
-                    "quantity": item.quantity,
-                    "price": item.price,
-                    "total_price": item.total_price(),
-                }
-                for item in order.items.all()
-            ],
-            "created_at": order.created_at,
-        }
-        return JsonResponse(order_data)
-
-    return JsonResponse({"error": "Unauthorized access"}, status=403)
+class OrderDetailView(DetailView):
+    template_name = "order_detail.html"
+    model = Order
+    context_object_name = "order"
 
 
-@login_required
-def list_orders(request):
-    if not request.user.is_staff:
-        return JsonResponse({"error": "Unauthorized access"}, status=403)
+# @login_required
+# def retrieve_order(request, order_id):
 
-    orders = Order.objects.all().values(
-        "id", "customer_id", "status", "total_price", "created_at"
-    )
-    return JsonResponse(list(orders), safe=False)
+#     if request.user == order.customer.user or request.user.is_staff:
+#         order = get_object_or_404(Order, id=order_id)
+#         order_data = {
+#             "id": order.id,
+#             "customer": order.customer.id,
+#             "status": order.get_status_display(),
+#             "total_price": order.total_price,
+#             "items": [
+#                 {
+#                     "menu_item": item.menu_item.name,
+#                     "quantity": item.quantity,
+#                     "price": item.price,
+#                     "total_price": item.total_price(),
+#                 }
+#                 for item in order.items.all()
+#             ],
+#             "created_at": order.created_at,
+#         }
+#         return JsonResponse(order_data)
+
+#     return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+
+class OrderListView(ListView):
+    template_name = "order_list.html"
+    model = Order
+    context_object_name = "orders"
+
+
+# @login_required
+# def list_orders(request):
+#     if not request.user.is_staff:
+#         return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+#     orders = Order.objects.all().values(
+#         "id", "customer_id", "status", "total_price", "created_at"
+#     )
+#     return JsonResponse(list(orders), safe=False)
 
 
 # exclude(*args, **kwargs): Returns a new QuerySet containing objects that do not match the given lookup parameters.
