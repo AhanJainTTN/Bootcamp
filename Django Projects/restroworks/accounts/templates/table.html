@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="table-holder">
+    <table class="query-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ table_data.id }}</td>
+                <td>{{ table_data.created_at }}</td>
+                <td>
+                    <div class="item-overview hide">
+                        {% for item in table_data.items %}
+                            <small>{{ item.menu_item }} x {{ item.quantity }}</small><br>
+                        {% endfor %}
+                    </div>
+                    <button onClick="toggleItems({{ table_data.id }})"class="item-details-btn btn-primary" id="item-details-btn-{{ table_data.id }}">View Details</button>
+                    <table class="nested-table hide" id="nested-table-{{ table_data.id }}">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in table_data.items %}
+                            <tr>
+                                <td>{{ item.menu_item }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.price }}</td>
+                                <td>{{ item.total_price }}</td>       
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td>{{ table_data.total_price }}</td>
+                <td>{{ table_data.status }}</td>                
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script>
+    function toggleItems(order_id) {
+        table_id = "nested-table-" + order_id
+        button_id = "item-details-btn-" + order_id
+        table = document.getElementById(table_id)
+        button = document.getElementById(button_id)
+
+        table.classList.toggle("hide")
+
+        if (button.textContent === "Hide Details") {
+            button.textContent = "View Details"
+        }
+        
+        else if (button.textContent === "View Details") {
+            button.textContent = "Hide Details"
+        }
+    } 
+</script>
+{% endblock scripts %}

@@ -2,4 +2,7 @@
 {% block title %}Login - Restroworks{% endblock title %}
 {% block content %}
     {% include "components/form.html" with form=form_data %}
+    <div class="new-user">
+        <a href="/accounts/signup/">New User? Sign Up</a>
+    </div>
 {% endblock content%}

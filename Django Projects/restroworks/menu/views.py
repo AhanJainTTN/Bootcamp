@@ -201,14 +201,15 @@ def render_grid(request):
         customer = Customer.objects.get(user=request.user)
         order = Order.objects.create(customer=customer)
         for item_id, quantity in dict(request.POST).items():
-            if item_id != "csrfmiddlewaretoken":
-                menu_item = MenuItem.objects.get(id=item_id)
-                order_item = OrderItem.objects.create(
-                    order=order,
-                    menu_item=menu_item,
-                    quantity=quantity[0],
-                    price=menu_item.price,
-                )
+            if (quantity[0]) != "0":
+                if item_id != "csrfmiddlewaretoken":
+                    menu_item = MenuItem.objects.get(id=item_id)
+                    order_item = OrderItem.objects.create(
+                        order=order,
+                        menu_item=menu_item,
+                        quantity=quantity[0],
+                        price=menu_item.price,
+                    )
 
         order.calculate_total()
         return JsonResponse(

@@ -1,8 +1,8 @@
 from django.http import JsonResponse
 from .forms import CustomerForm, CustomerAuthenticationForm, ExcelForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import FormView
 from openpyxl import Workbook, load_workbook
@@ -11,6 +11,8 @@ from django.contrib.auth.password_validation import validate_password
 from customers.models import Customer
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
+from orders.models import Order
+import json
 
 
 # Lifecycle of a FormView:
@@ -140,6 +142,54 @@ def user_login(request):
 
 def render_home(request):
     return render(request, "home.html")
+
+
+def render_table(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.user == order.customer.user or request.user.is_staff:
+        order_data = {
+            "id": order.id,
+            "customer": order.customer.id,
+            "status": order.get_status_display(),
+            "total_price": order.total_price,
+            "items": [
+                {
+                    "menu_item": item.menu_item.name,
+                    "quantity": item.quantity,
+                    "price": item.price,
+                    "total_price": item.total_price(),
+                }
+                for item in order.items.all()
+            ],
+            "created_at": order.created_at,
+        }
+
+        return render(request, "table.html", {"table_data": order_data})
+
+    return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+
+# order_data = {
+#             "id": order.id,
+#             "customer": order.customer.id,
+#             "status": order.get_status_display(),
+#             "total_price": order.total_price,
+#             "items": [
+#                 {
+#                     "menu_item": item.menu_item.name,
+#                     "quantity": item.quantity,
+#                     "price": item.price,
+#                     "total_price": item.total_price(),
+#                 }
+#                 for item in order.items.all()
+#             ],
+#             "created_at": order.created_at,
+#         }
+
+
+def user_logout(request):
+    logout(request)
+    return redirect("home")
 
 
 errors = {
