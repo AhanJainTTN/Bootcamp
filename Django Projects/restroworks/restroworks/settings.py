@@ -48,7 +48,7 @@ MIDDLEWARE = [
     # "middleware.iprestrict_middleware.IPRestrictMiddleware",
     # "middleware.test_middleware.TestMiddleware",
     # "middleware.useragent_logger_middleware.UserAgentLoggerMiddleware",
-    "middleware.exectime_middleware.ExecTimeMiddleware",
+    # "middleware.exectime_middleware.ExecTimeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
