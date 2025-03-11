@@ -274,7 +274,7 @@ td.menu-item-name {
   text-align: left;
 }
 
-tr:last-child {
+tr.order-summary:last-child {
   background-color: coral;
   border-radius: 0 0 0 8px;
 }

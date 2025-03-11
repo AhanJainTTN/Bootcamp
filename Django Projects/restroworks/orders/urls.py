@@ -18,9 +18,14 @@ urlpatterns = [
         views.track_order_status,
         name="track_order_status",
     ),
+    # path(
+    #     "view/all/customer",
+    #     views.retrieve_all_customer_orders,
+    #     name="retrieve_all_customer_orders",
+    # ),
     path(
         "view/all/customer",
-        views.retrieve_all_customer_orders,
+        views.CustomerOrderListView.as_view(),
         name="retrieve_all_customer_orders",
     ),
     path("update/<int:order_id>", views.update_order, name="update_order"),

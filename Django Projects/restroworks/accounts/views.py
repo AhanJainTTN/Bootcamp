@@ -11,8 +11,6 @@ from django.contrib.auth.password_validation import validate_password
 from customers.models import Customer
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
-from orders.models import Order
-import json
 
 
 # Lifecycle of a FormView:
@@ -25,7 +23,7 @@ import json
 # If valid: Custom processing logic runs. Django redirects to get_success_url(), unless overridden.
 # If invalid: Re-renders the form with error messages.
 class BulkUploadForm(FormView):
-    template_name = "excel_form.html"
+    template_name = "bulk_upload.html"
     form_class = ExcelForm
     success_url = "/menu/view/grid/"
 
@@ -92,9 +90,9 @@ class BulkUploadForm(FormView):
             if form.non_field_errors():
                 return self.form_invalid(form)
 
-            total_entries = ws.max_row - 1
-            summary = f"Total Entries: {total_entries}\nNew Entries: {created_count}\nErrors:\n{errors}"
-            print(summary)
+            # total_entries = ws.max_row - 1
+            # summary = f"Total Entries: {total_entries}\nNew Entries: {created_count}\nErrors:\n{errors}"
+            # print(summary)
 
         except Exception as e:
             form.add_error(None, f"Error processing file: {str(e)}")
@@ -144,103 +142,6 @@ def render_home(request):
     return render(request, "home.html")
 
 
-def render_table(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    if request.user == order.customer.user or request.user.is_staff:
-        order_data = {
-            "id": order.id,
-            "customer": order.customer.id,
-            "status": order.get_status_display(),
-            "total_price": order.total_price,
-            "items": [
-                {
-                    "menu_item": item.menu_item.name,
-                    "quantity": item.quantity,
-                    "price": item.price,
-                    "total_price": item.total_price(),
-                }
-                for item in order.items.all()
-            ],
-            "created_at": order.created_at,
-        }
-
-        return render(request, "table.html", {"table_data": order_data})
-
-    return JsonResponse({"error": "Unauthorized access"}, status=403)
-
-
-# order_data = {
-#             "id": order.id,
-#             "customer": order.customer.id,
-#             "status": order.get_status_display(),
-#             "total_price": order.total_price,
-#             "items": [
-#                 {
-#                     "menu_item": item.menu_item.name,
-#                     "quantity": item.quantity,
-#                     "price": item.price,
-#                     "total_price": item.total_price(),
-#                 }
-#                 for item in order.items.all()
-#             ],
-#             "created_at": order.created_at,
-#         }
-
-
 def user_logout(request):
     logout(request)
     return redirect("home")
-
-
-errors = {
-    1: "Error processing 1: ['This password is too short. It must contain at least 8 characters.']",
-    2: "Error processing 2: UNIQUE constraint failed: auth_user.username",
-    3: "Error processing 3: UNIQUE constraint failed: customers_customer.email",
-    4: "Error processing 4: UNIQUE constraint failed: customers_customer.email",
-    5: "Error processing 5: UNIQUE constraint failed: customers_customer.email",
-    6: "Error processing 6: UNIQUE constraint failed: customers_customer.email",
-    7: "Error processing 7: Null values encountered.",
-    8: "Error processing 8: UNIQUE constraint failed: customers_customer.email",
-    9: "Error processing 9: UNIQUE constraint failed: customers_customer.email",
-    10: "Error processing 10: UNIQUE constraint failed: customers_customer.email",
-    11: "Error processing 11: Null values encountered.",
-    12: "Error processing 12: UNIQUE constraint failed: customers_customer.email",
-    13: "Error processing 13: UNIQUE constraint failed: customers_customer.email",
-    14: "Error processing 14: Null values encountered.",
-    15: "Error processing 15: UNIQUE constraint failed: customers_customer.email",
-    16: "Error processing 16: UNIQUE constraint failed: customers_customer.email",
-    17: "Error processing 17: UNIQUE constraint failed: customers_customer.email",
-    18: "Error processing 18: UNIQUE constraint failed: customers_customer.email",
-    19: "Error processing 19: UNIQUE constraint failed: customers_customer.email",
-    20: "Error processing 20: UNIQUE constraint failed: customers_customer.email",
-    21: "Error processing 21: UNIQUE constraint failed: customers_customer.email",
-    22: "Error processing 22: UNIQUE constraint failed: customers_customer.email",
-    23: "Error processing 23: UNIQUE constraint failed: customers_customer.email",
-    24: "Error processing 24: UNIQUE constraint failed: customers_customer.email",
-    25: "Error processing 25: UNIQUE constraint failed: customers_customer.email",
-    26: "Error processing 26: UNIQUE constraint failed: customers_customer.email",
-    27: "Error processing 27: UNIQUE constraint failed: customers_customer.email",
-    28: "Error processing 28: UNIQUE constraint failed: customers_customer.email",
-    29: "Error processing 29: UNIQUE constraint failed: customers_customer.email",
-    30: "Error processing 30: UNIQUE constraint failed: customers_customer.email",
-    31: "Error processing 31: UNIQUE constraint failed: customers_customer.email",
-    32: "Error processing 32: UNIQUE constraint failed: customers_customer.email",
-    33: "Error processing 33: UNIQUE constraint failed: customers_customer.email",
-    34: "Error processing 34: UNIQUE constraint failed: customers_customer.email",
-    35: "Error processing 35: UNIQUE constraint failed: customers_customer.email",
-    36: "Error processing 36: UNIQUE constraint failed: customers_customer.email",
-    37: "Error processing 37: UNIQUE constraint failed: customers_customer.email",
-    38: "Error processing 38: UNIQUE constraint failed: customers_customer.email",
-    39: "Error processing 39: UNIQUE constraint failed: customers_customer.email",
-    40: "Error processing 40: UNIQUE constraint failed: customers_customer.email",
-    41: "Error processing 41: UNIQUE constraint failed: customers_customer.email",
-    42: "Error processing 42: UNIQUE constraint failed: customers_customer.email",
-    43: "Error processing 43: UNIQUE constraint failed: customers_customer.email",
-    44: "Error processing 44: UNIQUE constraint failed: customers_customer.email",
-    45: "Error processing 45: UNIQUE constraint failed: customers_customer.email",
-    46: "Error processing 46: UNIQUE constraint failed: customers_customer.email",
-    47: "Error processing 47: UNIQUE constraint failed: customers_customer.email",
-    48: "Error processing 48: UNIQUE constraint failed: customers_customer.email",
-    49: "Error processing 49: UNIQUE constraint failed: customers_customer.email",
-    50: "Error processing 50: UNIQUE constraint failed: customers_customer.email",
-}
