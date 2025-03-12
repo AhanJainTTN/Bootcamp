@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
@@ -7,6 +7,8 @@ from customers.models import Customer
 from menu.models import MenuItem
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
+from .forms import OrderUpdateForm
 
 
 # filter() vs get()
@@ -80,7 +82,7 @@ def retrieve_all_customer_orders(request):
 
 
 class OrderDetailView(DetailView):
-    template_name = "order_detail.html"
+    template_name = "order_details.html"
     model = Order
     context_object_name = "order"
 
@@ -122,6 +124,36 @@ class OrderListView(ListView):
             if not self.request.user.is_staff
             else Order.objects.all()
         )
+
+
+class MenuItemFormView(FormView):
+    template_name = "order_details.html"
+    form_class = OrderUpdateForm
+
+    # overriding dispatch otherwise since we are using order_id in multiple methods
+    # alternative would be to call db in each method which is suboptimal
+    def dispatch(self, request, *args, **kwargs):
+        self.order = get_object_or_404(Order, id=self.kwargs.get("order_id"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["order"] = self.order
+        return context
+
+    # def form_valid(self, form):
+    #     form.instance = self.order
+    #     form.save()
+    #     return super().form_valid(form)
+
+    def form_valid(self, form):
+        self.order.status = form.cleaned_data["status"]
+        self.order.save(update_fields=["status"])
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        order_id = self.kwargs.get("order_id")
+        return f"/orders/view/{order_id}"
 
 
 # @login_required

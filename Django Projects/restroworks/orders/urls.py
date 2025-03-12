@@ -28,7 +28,12 @@ urlpatterns = [
         views.CustomerOrderListView.as_view(),
         name="retrieve_all_customer_orders",
     ),
-    path("update/<int:order_id>", views.update_order, name="update_order"),
+    path(
+        "update/<int:order_id>",
+        login_required(views.MenuItemFormView.as_view()),
+        name="update_order",
+    ),
+    # path("update/<int:order_id>", views.update_order, name="update_order"),
     path("cancel/<int:order_id>", views.cancel_order, name="cancel_order"),
     path("delete/<int:order_id>", views.delete_order, name="delete_order"),
 ]
