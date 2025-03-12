@@ -11,6 +11,8 @@ from django.contrib.auth.password_validation import validate_password
 from customers.models import Customer
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
+from urllib.parse import urlparse
+from django.urls import is_valid_path
 
 
 # Lifecycle of a FormView:
@@ -25,7 +27,7 @@ from django.core.exceptions import ValidationError
 class BulkUploadForm(FormView):
     template_name = "bulk_upload.html"
     form_class = ExcelForm
-    success_url = "/menu/view/grid/"
+    success_url = "home"
 
     def form_valid(self, form):
         excel_file = form.cleaned_data["excel_file"]
@@ -124,16 +126,14 @@ def user_signup(request):
 
 def user_login(request):
     form = CustomerAuthenticationForm()
+    next_url = request.GET.get("next")
     if request.method == "POST":
         form = CustomerAuthenticationForm(data=request.POST)
         if form.is_valid():
-            # print(form)
             login(request, form.get_user())
-            # redirect(reverse("menu:render_grid"))
             form = CustomerAuthenticationForm()
-            # print("Redirecting...")
-            return redirect(reverse("menu:render_grid"))
-            # return JsonResponse({"message": "Login successful."}, status=200)
+
+            return redirect(next_url) if next_url else redirect("home")
 
     return render(request, "login.html", {"form_data": form})
 
