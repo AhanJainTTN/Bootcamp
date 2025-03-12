@@ -37,5 +37,8 @@ class OrderItem(models.Model):
     def total_price(self):
         return self.quantity * self.price
 
+    def __str__(self):
+        return f"{self.menu_item.name} ({self.quantity})"
+
 
 # Flow: Create Order object -> Create all related OrderItem objects (price is updated on save()) -> Update Order.total_price using calculate_total().
