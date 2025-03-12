@@ -4,11 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-djangorestframework-simplejwt = "*"
+django = "*"
 python-dotenv = "*"
+djangorestframework = "*"
 psycopg2-binary = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"
