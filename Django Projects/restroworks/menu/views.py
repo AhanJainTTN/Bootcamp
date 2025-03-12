@@ -135,7 +135,7 @@ class MenuItemDetailView(DetailView):
 # Override get_context_data() to customise context data sent to template
 class MenuItemListView(ListView):
     template_name = "menuitem_list.html"
-    paginate_by = 2  # adding pagination
+    paginate_by = 8  # adding pagination
     model = MenuItem
     context_object_name = "menu_items"
 
@@ -196,7 +196,10 @@ def delete_item(request, item_id):
 
 @login_required
 def render_grid(request):
-    menu_items = MenuItem.objects.all()
+    if request.user.is_staff:
+        menu_items = MenuItem.objects.all()
+        return render(request, "menuitem_list.html", {"menu_items": menu_items})
+
     if request.method == "POST":
         customer = Customer.objects.get(user=request.user)
         order = Order.objects.create(customer=customer)
@@ -212,7 +215,7 @@ def render_grid(request):
                     )
 
         order.calculate_total()
-        return JsonResponse(
-            {"message": f"Order with id {order.id} created successfully."}
-        )
+        return redirect(f"/orders/view/{order.id}")
+
+    menu_items = MenuItem.objects.all()
     return render(request, "menu-item_grid.html", {"menu_items": menu_items})
