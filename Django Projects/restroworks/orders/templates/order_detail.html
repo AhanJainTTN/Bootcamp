@@ -5,7 +5,8 @@
 </div>
 <div class="order-details">
     <div class="overview">
-        <h5>Order ID: {{ order.id }}</h5>
+        <h5>Order ID: {{ order.customer.id }}</h5>
+        {% if user.is_staff %}<h5>Customer ID: {{ order.id }}</h5>{% endif %}
         <h5>Date: {{ order.created_at }}</h5>
         <h5>Total: ₹{{ order.total_price }}</h5>
         <h5>Order Status: {{ order.get_status_display }}</h5>
