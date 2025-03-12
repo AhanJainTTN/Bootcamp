@@ -43,6 +43,7 @@ def create_order(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+
 class CustomerOrderListView(ListView):
     template_name = "order_list.html"
     model = Order
@@ -50,6 +51,7 @@ class CustomerOrderListView(ListView):
 
     def get_queryset(self):
         return Order.objects.filter(customer__user=self.request.user)
+
 
 @login_required
 def retrieve_all_customer_orders(request):
@@ -113,6 +115,13 @@ class OrderListView(ListView):
     template_name = "order_list.html"
     model = Order
     context_object_name = "orders"
+
+    def get_queryset(self):
+        return (
+            Order.objects.filter(customer__user=self.request.user)
+            if not self.request.user.is_staff
+            else Order.objects.all()
+        )
 
 
 # @login_required
