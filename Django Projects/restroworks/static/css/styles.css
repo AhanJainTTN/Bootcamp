@@ -19,6 +19,7 @@
   --primary: #09332e;
   --secondary: #331702;
   --accent: #167a6d;
+  --secondary-accent: #7d3804;
 }
 
 body {
@@ -265,9 +266,10 @@ td.order-items {
 
 .order-details {
   display: flex;
-  align-items: center;
-  justify-content: space-around;
+  align-items: flex-start;
+  justify-content: space-between;
   width: 100%;
+  /* flex-direction: column; */
 }
 
 .summary-table-holder {
@@ -283,8 +285,15 @@ tr.order-summary:last-child {
   border-radius: 0 0 0 8px;
 }
 
+.overview {
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .overview h5 {
-  margin-bottom: 8px;
   font-family: "Montserrat";
   font-weight: 600;
 }
@@ -427,8 +436,58 @@ a.order-actions:link {
 .heading {
   display: flex;
   width: 100%;
+  margin-bottom: 2rem;
+  align-items: center;
+  justify-content: center;
 }
 
-.heading h3 {
-  font-weight: 400;
+.heading h4 {
+  font-weight: 600;
+}
+
+.subheading {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 1rem;
+}
+
+.overview a {
+  margin-top: 8px;
+}
+
+select {
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: "Montserrat";
+  padding: 8px;
+  background: var(--secondary);
+  color: var(--background);
+  border-radius: 8px;
+}
+
+select:hover {
+  background: var(--secondary-accent);
+}
+
+.order-status-input {
+  margin: 0;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+.order-status-label {
+  position: absolute;
+}
+
+.order-status-button {
+  font-weight: 600;
+  height: 100%;
+}
+
+.order-status-form {
+  justify-content: flex-start;
 }

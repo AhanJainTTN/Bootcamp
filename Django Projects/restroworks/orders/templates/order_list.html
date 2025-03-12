@@ -15,23 +15,25 @@
         </thead>
         <tbody>
             {% for order in orders %}
-                <tr>
-                    <td class="order-id">{{ order.id }}</td>
-                    {% if user.is_staff %}<td class="customer-id">{{ order.customer.id }}</td>{% endif %}
-                    <td class="order-date">{{ order.created_at }}</td>
-                    <td class="order-items">
-                        <div class="item-overview">
-                            {% for item in order.items.all %}
-                                <small>{{ item.menu_item }} ({{ item.quantity }}){% if not forloop.last %}, {% endif %}</small>
-                            {% endfor %}
-                        </div>
-                    </td>
-                    <td class="order-total">₹{{ order.total_price }}</td>
-                    <td class="order-status">{{ order.get_status_display }}</td>
-                    <td class="order-actions">
-                        <a href="/orders/view/{{ order.id }}" class="order-actions">View Details</a>
-                    </td>                
-                </tr>
+            <tr>
+                <td class="order-id">{{ order.id }}</td>
+                {% if user.is_staff %}
+                <td class="customer-id">{{ order.customer.id }}</td>
+                {% endif %}
+                <td class="order-date">{{ order.created_at }}</td>
+                <td class="order-items">
+                    <div class="item-overview">
+                        {% for item in order.items.all %}
+                        {{ item.menu_item }} ({{ item.quantity }}){% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                </td>
+                <td class="order-total">₹{{ order.total_price }}</td>
+                <td class="order-status">{{ order.get_status_display }}</td>
+                <td class="order-actions">
+                    <a href="/orders/view/{{ order.id }}" class="order-actions">View Details</a>
+                </td>                
+            </tr>
             {% endfor %}
         </tbody>
     </table>
