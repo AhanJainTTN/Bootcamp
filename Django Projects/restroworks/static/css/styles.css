@@ -254,9 +254,13 @@ td.order-items {
   width: 15%;
 }
 
+.customer-id {
+  width: 12.5%;
+}
+
 .order-status,
 .order-total {
-  width: 12.5%;
+  width: 10%;
 }
 
 .order-details {
