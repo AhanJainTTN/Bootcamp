@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Welcome - Restroworks{% endblock title %}
+{% block precontent %}
+<div class="hero-video">
+    <dotlottie-player class="bg-video" src="https://lottie.host/dc07ec1c-b73a-4002-a161-3fe3461c7015/5uHPs8asn9.json" background="transparent" speed="1" loop autoplay></dotlottie-player>
+</div>
+{% endblock precontent %}
 {% block content %}
 <div class="landing-main">
     <h1>Welcome to Restroworks</h1>
@@ -7,3 +12,6 @@
     <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ab quidem a nostrum quos velit? Consectetur eaque soluta doloremque, labore reiciendis optio veniam? At eligendi non quidem cum voluptates vitae. Molestiae!</p>
 </div>
 {% endblock content %}
+{% block scripts %}
+<script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+{% endblock scripts %}
