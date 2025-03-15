@@ -23,5 +23,4 @@ urlpatterns = [
         views.EmployeeDeleteView.as_view(),
         name="delete_user",
     ),
-    path("login/", views.user_login, name="user_login"),
 ]

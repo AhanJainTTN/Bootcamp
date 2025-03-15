@@ -115,6 +115,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# JWTAuthentication
+# No access token - moves to next auth class
+# Invalid/expired access token - raises error and does not move to next auth class
+
+# SessionAuthentication
+# No CSRF and POST - raises error and does not move to next auth class
+# No SessionID - moves to next auth class
+# Invalid/expired SessionID - browser discards the cookie, 401 returned and moves to next auth class
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
