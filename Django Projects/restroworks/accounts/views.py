@@ -112,14 +112,7 @@ def user_signup(request):
             customer = form.save()
             if customer:
                 form = CustomerForm()
-
-                # return JsonResponse(
-                #     {
-                #         "message": "Customer registered successfully",
-                #         "customer_id": customer.id,
-                #     },
-                #     status=201,
-                # )
+                return render(request, "home.html", {"form_data": form})
 
     return render(request, "signup.html", {"form_data": form})
 
