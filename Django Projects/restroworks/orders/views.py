@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
@@ -44,15 +44,6 @@ def create_order(request):
             return JsonResponse({"error": f"Error creating order: {e}"}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-class CustomerOrderListView(ListView):
-    template_name = "order_list.html"
-    model = Order
-    context_object_name = "orders"
-
-    def get_queryset(self):
-        return Order.objects.filter(customer__user=self.request.user)
 
 
 @login_required
@@ -110,6 +101,7 @@ class OrderDetailView(DetailView):
 #         }
 #         return JsonResponse(order_data)
 
+
 #     return JsonResponse({"error": "Unauthorized access"}, status=403)
 
 
@@ -120,10 +112,24 @@ class OrderListView(ListView):
 
     def get_queryset(self):
         return (
-            Order.objects.filter(customer__user=self.request.user)
+            Order.objects.filter(customer__user=self.request.user).order_by(
+                "-created_at"
+            )
             if not self.request.user.is_staff
-            else Order.objects.all()
+            else Order.objects.all().order_by("-created_at")
         )
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+class CustomerOrderListView(ListView):
+    template_name = "order_list.html"
+    model = Order
+    context_object_name = "orders"
+
+    def get_queryset(self):
+        return Order.objects.filter(customer__user=self.request.user)
 
 
 class MenuItemFormView(FormView):

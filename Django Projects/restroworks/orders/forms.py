@@ -5,6 +5,4 @@ from .models import Order
 class OrderUpdateForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = [
-            "status",
-        ]
+        fields = ["status"]

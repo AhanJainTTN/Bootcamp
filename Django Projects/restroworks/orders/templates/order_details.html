@@ -34,7 +34,6 @@
                 <button type="submit" class="btn-primary clr-1 order-status-button">Update</button>
             </div>
           </form>
-        {% comment %} {% include "components/form.html" with form=form %} {% endcomment %}
         {% endif %}
         {% endif %}
     </div>
@@ -57,11 +56,11 @@
                     <td>₹{{ item.total_price }}</td>       
                 </tr>
                 {% endfor %}
-                <tr class="order-summary">
-                    <td style="border-radius: 0 0 0 8px"><strong>Order Total</strong></td>
+                <tr>
+                    <td><strong>Order Total</strong></td>
                     <td></td>
                     <td></td>
-                    <td style="border-radius: 0 0 8px 0"><strong>₹{{ order.total_price }}</strong></td>       
+                    <td><strong>₹{{ order.total_price }}</strong></td>       
                 </tr>
             </tbody>
         </table>
