@@ -2,17 +2,16 @@
 <header class="header">
   <div class="header-content container">
     <div class="navbar-logo">
-      {% comment %} <img src="{% static logo %}" alt="Restaurant Logo" /> {% endcomment %}
-      <a href="/accounts/home/">
+      <a href="/">
         <h3 class="navbar-title">{{ title }}</h3>
       </a>
     </div>
     <div class="navbar-links">
-      {% if user.is_staff %}
-          <a href="/menu/create/">Add Menu Item</a>
-        {% endif %}
       <a href="/menu/view/all">Menu</a>
       <a href="/orders/view/all">Orders</a>
+      {% if user.is_staff %}
+      <a href="/metrics/">Metrics</a>
+      {% endif %}
     </div>
     <div class="buttons">
       {% if not user.is_authenticated %}
@@ -20,7 +19,6 @@
         {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Login" button_colour="1" %}
       </a>
       {% elif  user.is_authenticated %}
-        {% comment %} <a href="#">Profile</a> {% endcomment %}
         <a href="/accounts/logout">
           {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Logout" button_colour="1" %}
         </a>
@@ -28,4 +26,3 @@
     </div>
   </div>
 </header>
-<div class="spacer"></div>
