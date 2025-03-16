@@ -11,6 +11,8 @@ from orders.models import Order, OrderItem
 from customers.models import Customer
 from django.views.generic.edit import FormView
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import transaction
 
 # using get instead of indexing operator so model itself handles IntegrityError
 # using indexing operator (will necessitate handling a KeyError) or explicit NULL checks is redundant
@@ -56,8 +58,11 @@ class MenuItemFormView(FormView):
         return super().form_valid(form)
 
 
-class MenuItemCreateView(View):
+class MenuItemCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "menu-item_form.html"
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get(self, request):
         form = MenuItemForm()
@@ -98,7 +103,7 @@ class MenuItemCreateView(View):
 class MenuItemDetailView(DetailView):
     model = MenuItem
     template_name = "menuitem.html"
-    context_object_name = "menu_item"
+    context_object_name = "item"
 
 
 # def retrieve_item(request, item_id):
@@ -133,11 +138,37 @@ class MenuItemDetailView(DetailView):
 # ListView makes displaying a list of objects convenient
 # Override get_queryset() method to customise object retrieval
 # Override get_context_data() to customise context data sent to template
-class MenuItemListView(ListView):
-    template_name = "menuitem_list.html"
-    paginate_by = 8  # adding pagination
+class MenuItemListView(LoginRequiredMixin, ListView):
+    template_name = "menu-item_grid.html"
+    paginate_by = 12  # adding pagination
     model = MenuItem
     context_object_name = "menu_items"
+
+    def post(self, request):
+        customer = Customer.objects.get(user=request.user)
+        with transaction.atomic():
+            order = Order.objects.create(customer=customer)
+            is_empty = True
+            for item_id, quantity in dict(request.POST).items():
+                if item_id != "csrfmiddlewaretoken" and int(quantity[0]) > 0:
+                    is_empty = False
+                    print(int(quantity[0]), type(int(quantity[0])))
+                    menu_item = MenuItem.objects.get(id=item_id)
+                    order_item = OrderItem.objects.create(
+                        order=order,
+                        menu_item=menu_item,
+                        quantity=int(quantity[0]),
+                        price=menu_item.price,
+                    )
+
+            if is_empty:
+                order.delete()
+                return JsonResponse({"error": "Please select at least 1 item."})
+
+            order.calculate_total()
+            return redirect(f"/orders/view/{order.id}")
+
+        return JsonResponse({"error": "An error occurred in order creation."})
 
 
 # def list_items(request):
@@ -151,31 +182,51 @@ class MenuItemListView(ListView):
 
 
 # Why POST and not PUT - images are sent in request.FILES which does not work with PUT
+# @login_required
+# def update_item(request, item_id):
+
+#     if request.user.is_staff:
+
+#         if request.method == "POST":
+
+#             item = get_object_or_404(MenuItem, id=item_id)
+
+#             try:
+
+#                 item.name = request.POST.get("name", item.name)
+#                 item.description = request.POST.get("description", item.description)
+#                 item.price = request.POST.get("price", item.price)
+#                 item.image = request.FILES.get("image", item.image)
+#                 item.save()
+
+#                 return JsonResponse({"message": "Item successfully updated."})
+
+#             except IntegrityError as e:
+#                 return JsonResponse({"error": f"Error while updating item. {e}"})
+
+#         return JsonResponse({"error": "Invalid request method."}, status=405)
+
+#     return JsonResponse({"error": "Unauthorised access."}, status=403)
+
+
 @login_required
 def update_item(request, item_id):
 
-    if request.user.is_staff:
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Unauthorised access."}, status=403)
 
-        if request.method == "POST":
+    item = get_object_or_404(MenuItem, id=item_id)
 
-            item = get_object_or_404(MenuItem, id=item_id)
+    if request.method == "POST":
+        form = MenuItemForm(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect(f"/menu/view/{item.id}")
 
-            try:
+    if request.method == "GET":
+        form = MenuItemForm(instance=item)
 
-                item.name = request.POST.get("name", item.name)
-                item.description = request.POST.get("description", item.description)
-                item.price = request.POST.get("price", item.price)
-                item.image = request.FILES.get("image", item.image)
-                item.save()
-
-                return JsonResponse({"message": "Item successfully updated."})
-
-            except IntegrityError as e:
-                return JsonResponse({"error": f"Error while updating item. {e}"})
-
-        return JsonResponse({"error": "Invalid request method."}, status=405)
-
-    return JsonResponse({"error": "Unauthorised access."}, status=403)
+    return render(request, "menu-item_form.html", {"form": form})
 
 
 @login_required
@@ -198,7 +249,7 @@ def delete_item(request, item_id):
 def render_grid(request):
     if request.user.is_staff:
         menu_items = MenuItem.objects.all()
-        return render(request, "menuitem_list.html", {"menu_items": menu_items})
+        return render(request, "menu-item_grid.html", {"menu_items": menu_items})
 
     if request.method == "POST":
         customer = Customer.objects.get(user=request.user)
