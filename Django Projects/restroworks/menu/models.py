@@ -23,13 +23,14 @@ from menu.validators import validate_image
 # no need for id since it is automatically generated and managed by Django
 class MenuItem(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField(max_length=500, default="Description")
+    description = models.TextField(max_length=500)
     image = models.ImageField(
         upload_to="menu/menu_items/",
         validators=[validate_image],
         help_text="Please upload an image with equal height and width.",
         null=True,
         blank=True,
+        default="menu/default.png",
     )
     rating = models.FloatField(default=0.0, blank=True)
     # max_digits: The maximum number of digits allowed in the number. Note that this number must be greater than or equal to decimal_places.
