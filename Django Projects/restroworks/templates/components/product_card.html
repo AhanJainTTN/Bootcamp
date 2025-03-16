@@ -9,7 +9,7 @@
     <div class="product-info">
         <div class="product-price"><strong>₹{{ item.price }}</strong></div>
         {% if user.is_staff %}
-        <a href="#">Edit</a>
+        <a href="/menu/update/{{ item.id }}">Edit</a>
         {% else %}
         <label for="{{ item.id }}"></label>
         <input type="number" name="{{ item.id }}" class="input-field step" id="{{ item.id }}" value="0" min="0" />

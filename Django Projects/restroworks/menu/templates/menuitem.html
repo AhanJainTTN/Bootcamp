@@ -3,7 +3,8 @@
 {% block title %}Menu Items - Restroworks{%endblock title %} 
 {% block content %}
 <div class="grid-content">
-    <div class="product-card">
+    {% include "components/product_card.html" with item=item%}
+    {% comment %} <div class="product-card">
         {% if item.image %}
         <div class="product-image">
             <img src="{{ item.image.url }}" alt="{{ item.name }}">
@@ -12,6 +13,6 @@
         <div class="product-title"><strong>{{ menu_item.name }}</strong></div>
         <div class="product-desc"><small>{{ menu_item.description }}</small></div>
         <div class="product-price"><strong>₹{{ menu_item.price }}</strong></div>
-    </div>
+    </div> {% endcomment %}
 </div>
 {% endblock content %}
