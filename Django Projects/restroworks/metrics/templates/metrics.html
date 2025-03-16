@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Metrics - Restroworks{% endblock title %}
+{% block content %}
+
+{% if form %}
+{% include "components/form.html" with form=form for="metrics-form" %}
+{% endif %}
+
+{% if start_date and end_date %}
+<div class="metrics-range">
+    <h4>From {{ start_date }} to {{ end_date }}</h4>
+</div>
+{% endif %}
+
+<div class="metrics-holder">
+    {% for metric, metric_value in metrics.items %}
+    <div class="metric">
+        <h5>{{ metric }}</h5>
+        <h3>{{ metric_value }}</h3>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
