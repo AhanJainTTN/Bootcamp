@@ -19,6 +19,7 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     form_class = DateRangeForm
 
     def test_func(self):
+        # return True
         return self.request.user.is_staff
 
     def form_valid(self, form):
