@@ -3,7 +3,7 @@ from .forms import CustomerForm, CustomerAuthenticationForm, ExcelForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.generic.edit import FormView
 from openpyxl import Workbook, load_workbook
 from django.contrib.auth.models import User
@@ -13,6 +13,9 @@ from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
 from urllib.parse import urlparse
 from django.urls import is_valid_path
+import logging
+
+logger = logging.getLogger("user_actions")
 
 
 # Lifecycle of a FormView:
@@ -111,6 +114,7 @@ def user_signup(request):
         if form.is_valid():
             customer = form.save()
             if customer:
+                logging.info(f"New user registration: {form.cleaned_data["username"]}")
                 form = CustomerForm()
                 return render(request, "home.html", {"form_data": form})
 
@@ -123,6 +127,7 @@ def user_login(request):
     if request.method == "POST":
         form = CustomerAuthenticationForm(data=request.POST)
         if form.is_valid():
+            logging.info(f"User login: {form.cleaned_data["username"]}")
             login(request, form.get_user())
             form = CustomerAuthenticationForm()
 
@@ -136,5 +141,6 @@ def render_home(request):
 
 
 def user_logout(request):
+    logging.info(f"User logged out: {request.user}")
     logout(request)
     return redirect("home")
