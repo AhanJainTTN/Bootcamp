@@ -113,6 +113,7 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             },
         )
 
+    # by default shows a 403 forbidden page (if not overridden)
     def handle_no_permission(self):
         return JsonResponse({"error": "Unauthorized access."}, status=403)
 
