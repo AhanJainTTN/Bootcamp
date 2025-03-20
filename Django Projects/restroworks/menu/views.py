@@ -4,7 +4,7 @@ from django.views.generic.detail import DetailView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db import IntegrityError
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from menu.models import MenuItem
 from menu.forms import MenuItemForm
 from orders.models import Order, OrderItem
@@ -210,6 +210,7 @@ class MenuItemListView(LoginRequiredMixin, ListView):
 
 
 @login_required
+# @permission_required("menu.change_menuitem")
 def update_item(request, item_id):
 
     if not request.user.is_staff:

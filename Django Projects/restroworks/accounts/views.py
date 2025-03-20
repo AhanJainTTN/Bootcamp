@@ -114,7 +114,7 @@ def user_signup(request):
         if form.is_valid():
             customer = form.save()
             if customer:
-                logging.info(f"New user registration: {form.cleaned_data["username"]}")
+                # logging.info(f"New user registration: {form.cleaned_data["username"]}")
                 form = CustomerForm()
                 return render(request, "home.html", {"form_data": form})
 
@@ -127,7 +127,7 @@ def user_login(request):
     if request.method == "POST":
         form = CustomerAuthenticationForm(data=request.POST)
         if form.is_valid():
-            logging.info(f"User login: {form.cleaned_data["username"]}")
+            # logging.info(f"User login: {form.cleaned_data["username"]}")
             login(request, form.get_user())
             form = CustomerAuthenticationForm()
 
