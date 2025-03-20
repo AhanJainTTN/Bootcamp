@@ -1,15 +1,14 @@
 from django.urls import path
+from rest_framework import routers
 from . import views
 
-# urlpatterns = [
-#     path("create/", views.create_user, name="create_user"),
-#     path("read/<int:employee_id>", views.read_user, name="read_user"),
-#     path("read/all", views.read_all_users, name="read_all_users"),
-#     path("update/<int:employee_id>", views.update_user, name="update_user"),
-#     path("delete/<int:employee_id>", views.delete_user, name="delete_user"),
-# ]
-
 urlpatterns = [
+    path("", views.CustomCBVEmployee.as_view(), name="employee-list-create"),
+    path(
+        "<int:employee_id>/",
+        views.CustomCBVEmployee.as_view(),
+        name="employee-detail",
+    ),
     path("create/", views.EmployeeCreateView.as_view(), name="create_user"),
     path("read/<int:pk>/", views.EmployeeDetailView.as_view(), name="read_user"),
     path("read/all/", views.AllEmployeesListView.as_view(), name="read_all_users"),
@@ -24,3 +23,7 @@ urlpatterns = [
         name="delete_user",
     ),
 ]
+
+# router = routers.DefaultRouter()
+# router.register(r"model-viewset", views.EmployeeViewSet)
+# urlpatterns += router.urls
