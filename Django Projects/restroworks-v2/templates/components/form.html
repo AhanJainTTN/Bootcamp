@@ -1,0 +1,24 @@
+<form class="main-form {{ for }}" method="post" autocomplete="off" id="main-form" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  {% for field in form %}
+
+    <div class="input-box">
+      <label class="input-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+
+      {% if field.errors %}
+        <small class="error">{{ field.errors.0 }}</small>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  {% for error in form.non_field_errors %}
+    <small class="error">{{ error }}</small>
+  {% endfor %}
+
+  <div class="buttons {{ for }}">
+    {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Submit" button_colour="1" %}
+    {% include "components/button.html" with button_type="reset" button_style="btn-primary" button_text="Reset" button_colour="3" %}
+  </div>
+</form>

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<div class='heading'>
+    <h4>Order Details</h4>
+</div>
+<div class='subheading'>
+    <h5>Item Summary</h5>
+</div>
+<div class="order-details">
+    <div class="overview">
+        <h5>Order ID: {{ order.id }}</h5>
+        {% if user.is_staff %}
+        <h5>Customer ID: {{ order.customer.id }}</h5>
+        <h5>Name: {{ order.customer.user.first_name }} {{ order.customer.user.last_name }}</h5>
+        <h5>Phone: {{ order.customer.phone }}</h5>
+        <h5>Email: {{ order.customer.email }}</h5>
+        {% endif %}
+        <h5>Date: {{ order.created_at }}</h5>
+        <h5>Total: ₹{{ order.total_price }}</h5>
+        <h5>Order Status: {{ order.get_status_display }}</h5>
+        {% if user.is_staff %}
+        <a href="/orders/update/{{ order.id }}">Edit Order Status</a>
+        {% if form %}
+        <form class="main-form order-status-form" method="post" autocomplete="off" id="main-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="input-box order-status-input">
+                <label class="input-label order-status-label" for="id_status"></label>
+                <select name="status" id="id_status">
+                    <option value="1" {% if order.status == 1 %}selected{% endif %}>Confirmed</option>
+                    <option value="2" {% if order.status == 2 %}selected{% endif %}>In Kitchen</option>
+                    <option value="3" {% if order.status == 3 %}selected{% endif %}>Delivered</option>
+                    <option value="4" {% if order.status == 4 %}selected{% endif %}>Cancelled</option>
+                </select>   
+                <button type="submit" class="btn-primary clr-1 order-status-button">Update</button>
+            </div>
+          </form>
+        {% endif %}
+        {% endif %}
+    </div>
+    <div class="summary-table-holder">
+        <table class="query-table menu-item-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td class="menu-item-name">{{ item.menu_item }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>₹{{ item.total_price }}</td>       
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td><strong>Order Total</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td><strong>₹{{ order.total_price }}</strong></td>       
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

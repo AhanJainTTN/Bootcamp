@@ -1,0 +1,15 @@
+Order Flow: Go see all available menu items -> use a grid to show all items -> select quantity for all items you want and click order/pay now
+
+TODO
+Customer: View Order Page -> Cancel Order
+Add category for veg/non-veg and render on menu-items grid
+Interface:
+    Landing Page
+    Navbar
+        Buttons
+            Login/Signup
+            Logout (If logged in)
+        Actions
+            View Menu Items/Place Order
+            View Orders
+            View Profile

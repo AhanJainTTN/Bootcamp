@@ -1,0 +1,19 @@
+<div class="product-card">
+    {% if item.image %}
+    <div class="product-image">
+        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+    </div>
+    {% endif %}
+    <div class="product-title"><strong>{{ item.name }}</strong></div>
+    <div class="product-desc"><small>{{ item.description }}</small></div>
+    <div class="product-info">
+        <div class="product-price"><strong>₹{{ item.price }}</strong></div>
+        {% if user.is_staff %}
+        <a href="/menu/update/{{ item.id }}">Edit</a>
+        <a href="/menu/delete/{{ item.id }}" style="color: red;" onclick="return confirm('Are you sure you want to delete {{ item.name }}?');">Delete</a>
+        {% else %}
+        <label for="{{ item.id }}"></label>
+        <input type="number" name="{{ item.id }}" class="input-field step" id="{{ item.id }}" value="0" min="0" />
+        {% endif %}
+    </div>
+</div>

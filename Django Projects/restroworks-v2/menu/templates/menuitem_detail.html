@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Menu Items - Restroworks{%endblock title %} 
+{% block content %}
+<div class="grid-content">
+    {% include "components/product_card.html" with item=item%}
+</div>
+{% endblock content %}

@@ -1,0 +1,28 @@
+{% load static %}
+<header class="header">
+  <div class="header-content container">
+    <div class="navbar-logo">
+      <a href="/">
+        <h3 class="navbar-title">{{ title }}</h3>
+      </a>
+    </div>
+    <div class="navbar-links">
+      <a href="/menu/view/all">Menu</a>
+      <a href="/orders/view/all">Orders</a>
+      {% if user.is_staff %}
+      <a href="/metrics/">Metrics</a>
+      {% endif %}
+    </div>
+    <div class="buttons">
+      {% if not user.is_authenticated %}
+      <a href="/accounts/login/">
+        {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Login" button_colour="1" %}
+      </a>
+      {% elif  user.is_authenticated %}
+        <a href="/accounts/logout">
+          {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Logout" button_colour="1" %}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</header>

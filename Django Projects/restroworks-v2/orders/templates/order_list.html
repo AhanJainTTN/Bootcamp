@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="select-order-status-form" method="get" autocomplete="off" id="main-form" enctype="multipart/form-data">
+    <div class="input-box order-status-input">
+        <label for="id_status" style="display: grid; place-content: center; font-size: 1rem">Filter by Status</label>
+        <select name="status" id="id_status">
+            <option value="" {% if not request.GET.status %}selected{% endif %}>All Orders</option>
+            <option value="1" {% if request.GET.status == '1' %}selected{% endif %}>Confirmed</option>
+            <option value="2" {% if request.GET.status == '2' %}selected{% endif %}>In Kitchen</option>
+            <option value="3" {% if request.GET.status == '3' %}selected{% endif %}>Delivered</option>
+            <option value="4" {% if request.GET.status == '4' %}selected{% endif %}>Cancelled</option>
+        </select>
+        <button type="submit" class="btn-primary clr-1 order-status-button">Filter</button>
+    </div>
+    <a href="/orders/view/all">View All</a>
+</form>
+<div class="table-holder">
+    <table class="query-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                {% if user.is_staff %}<th>Customer ID</th>{% endif %}
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td class="order-id">{{ order.id }}</td>
+                {% if user.is_staff %}
+                <td class="customer-id">{{ order.customer.id }}</td>
+                {% endif %}
+                <td class="order-date">{{ order.created_at }}</td>
+                <td class="order-items">
+                    <div class="item-overview">
+                        {% for item in order.items.all %}
+                        {{ item.menu_item }} ({{ item.quantity }}){% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                </td>
+                <td class="order-total">₹{{ order.total_price }}</td>
+                <td class="order-status">{{ order.get_status_display }}</td>
+                <td class="order-actions">
+                    <a href="/orders/view/{{ order.id }}" class="order-actions">View Details</a>
+                </td>                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

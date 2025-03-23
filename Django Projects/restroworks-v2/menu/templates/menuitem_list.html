@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Menu Items - Restroworks{%endblock title %} 
+{% block content %}
+{% if user.is_staff %}
+<div style="width: 100%; display: flex; justify-content: flex-end; padding-right: 2.75rem; margin-bottom: 8px">
+    <a href="/menu/create">Add Menu Item</a>
+</div>
+{% endif %}
+<form class="menu-item-grid" method="post" action="/orders/create" autocomplete="n/a">
+    {% csrf_token %}
+    <div class="grid-content">
+    {% for item in menu_items %}
+    {% include "components/product_card.html" with item=item %}
+    {% endfor %}
+    </div>
+
+    {% if page_obj %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+    
+    {% if not user.is_staff %}
+    <div class="buttons">
+        {% include "components/button.html" with button_type="submit" button_style="btn-primary" button_text="Place Order" button_colour="1" %}
+    </div>
+    {% endif %}
+</form>
+{% endblock content %}
