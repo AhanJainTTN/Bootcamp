@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/restroworks
+      # Command in both dockerfile and docker-compose in case container is started using docker run instead of docker-compose up --build
+      # When using Docker Compose, this command overrides the CMD in Dockerfile 
+    command: ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
