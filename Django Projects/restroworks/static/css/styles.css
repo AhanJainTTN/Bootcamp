@@ -404,10 +404,12 @@ a.order-actions:link {
 
 .landing-main h1 {
   color: var(--text);
+  text-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 
 .landing-main p {
   max-width: 75%;
+  text-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
 }
 
 .hero-video {
