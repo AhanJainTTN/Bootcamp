@@ -1,0 +1,72 @@
+DROP TABLE IF EXISTS employees;
+
+SET DateStyle TO European;
+
+CREATE TABLE employees (
+    employee_id	BIGSERIAL PRIMARY KEY,
+    first_name	VARCHAR(50) NOT NULL,
+    last_name	VARCHAR(50),
+    email	VARCHAR(256) UNIQUE NOT NULL,
+    phone CHAR(10) UNIQUE NOT NULL,
+    hire_date	date NOT NULL,
+    salary	INT CHECK (salary > 0),
+    job_id	BIGINT,
+    manager_id	BIGINT,
+    FOREIGN KEY (manager_id) REFERENCES employees(employee_id),
+    FOREIGN KEY (job_id) REFERENCES jobs(job_id)
+);
+
+
+INSERT INTO employees (employee_id, first_name, last_name, email, phone, hire_date, job_id, salary, manager_id) VALUES
+	('198', 'Donald', 'OConnell', 'DOCONNEL@company.com', '6505079833', '21-06-2007', '15', '2600', '124'),
+	('199', 'Douglas', 'Grant', 'DGRANT@company.com', '6505079844', '13-01-2008', '15', '2600', '124'),
+	('200', 'Jennifer', 'Whalen', 'JWHALEN@company.com', '5151234444', '17-09-2003', '3', '4400', '101'),
+	('201', 'Michael', 'Hartstein', 'MHARTSTE@company.com', '5151235555', '17-02-2004', '10', '13000', '100'),
+	('202', 'Pat', 'Fay', 'PFAY@company.com', '6031236666', '17-08-2005', '11', '6000', '201'),
+	('203', 'Susan', 'Mavris', 'SMAVRIS@company.com', '5151237777', '07-06-2002', '8', '6500', '101'),
+	('204', 'Hermann', 'Baer', 'HBAER@company.com', '5151238888', '07-06-2002', '12', '10000', '101'),
+	('205', 'Shelley', 'Higgins', 'SHIGGINS@company.com', '5151238080', '07-06-2002', '2', '12008', '101'),
+	('206', 'William', 'Gietz', 'WGIETZ@company.com', '5151238181', '07-06-2002', '1', '8300', '205'),
+	('100', 'Steven', 'King', 'SKING@company.com', '5151234567', '17-06-2003', '4', '24000', NULL),
+	('101', 'Neena', 'Kochhar', 'NKOCHHAR@company.com', '5151234568', '21-09-2005', '5', '17000', '100'),
+	('102', 'Lex', 'De Haan', 'LDEHAAN@company.com', '5151234569', '13-01-2001', '5', '17000', '100'),
+	('103', 'Alexander', 'Hunold', 'AHUNOLD@company.com', '5904234567', '03-01-2006', '9', '9000', '102'),
+	('104', 'Bruce', 'Ernst', 'BERNST@company.com', '5904234568', '21-05-2007', '9', '6000', '103'),
+	('105', 'David', 'Austin', 'DAUSTIN@company.com', '5904234569', '25-06-2005', '9', '4800', '103'),
+	('106', 'Valli', 'Pataballa', 'VPATABAL@company.com', '5904234560', '05-02-2006', '9', '4800', '103'),
+	('107', 'Diana', 'Lorentz', 'DLORENTZ@company.com', '5904235567', '07-02-2007', '9', '4200', '103'),
+	('108', 'Nancy', 'Greenberg', 'NGREENBE@company.com', '5151244569', '17-08-2002', '7', '12008', '101'),
+	('109', 'Daniel', 'Faviet', 'DFAVIET@company.com', '5151244169', '16-08-2002', '6', '9000', '108'),
+	('110', 'John', 'Chen', 'JCHEN@company.com', '5151244269', '28-09-2005', '6', '8200', '108'),
+	('111', 'Ismael', 'Sciarra', 'ISCIARRA@company.com', '5151244369', '30-09-2005', '6', '7700', '108'),
+	('112', 'Jose Manuel', 'Urman', 'JMURMAN@company.com', '5151244469', '07-03-2006', '6', '7800', '108'),
+	('113', 'Luis', 'Popp', 'LPOPP@company.com', '5151244567', '07-12-2007', '6', '6900', '108'),
+	('114', 'Den', 'Raphaely', 'DRAPHEAL@company.com', '5151274561', '07-12-2002', '14', '11000', '100'),
+	('115', 'Alexander', 'Khoo', 'AKHOO@company.com', '5151274562', '18-05-2003', '13', '3100', '114'),
+	('116', 'Shelli', 'Baida', 'SBAIDA@company.com', '5151274563', '24-12-2005', '13', '2900', '114'),
+	('117', 'Sigal', 'Tobias', 'STOBIAS@company.com', '5151274564', '24-07-2005', '13', '2800', '114'),
+	('118', 'Guy', 'Himuro', 'GHIMURO@company.com', '5151274565', '15-11-2006', '13', '2600', '114'),
+	('119', 'Karen', 'Colmenares', 'KCOLMENA@company.com', '5151274566', '10-08-2007', '13', '2500', '114'),
+	('120', 'Matthew', 'Weiss', 'MWEISS@company.com', '6501231234', '18-07-2004', '17', '8000', '100'),
+	('121', 'Adam', 'Fripp', 'AFRIPP@company.com', '6501232234', '10-04-2005', '17', '8200', '100'),
+	('122', 'Payam', 'Kaufling', 'PKAUFLIN@company.com', '6501233234', '01-05-2003', '17', '7900', '100'),
+	('123', 'Shanta', 'Vollman', 'SVOLLMAN@company.com', '6501234234', '10-10-2005', '17', '6500', '100'),
+	('124', 'Kevin', 'Mourgos', 'KMOURGOS@company.com', '6501235234', '16-11-2007', '17', '5800', '100'),
+	('125', '07ia', 'Nayer', 'JNAYER@company.com', '6501241214', '16-07-2005', '16', '3200', '120'),
+	('126', 'Irene', 'Mikkilineni', 'IMIKKILI@company.com', '6501241224', '28-09-2006', '16', '2700', '120'),
+	('127', 'James', 'Landry', 'JLANDRY@company.com', '6501241334', '14-01-2007', '16', '2400', '120'),
+	('128', 'Steven', '03kle', 'S03KLE@company.com', '6501241434', '08-03-2008', '16', '2200', '120'),
+	('129', 'Laura', 'Bissot', 'LBISSOT@company.com', '6501245234', '20-08-2005', '16', '3300', '121'),
+	('130', 'Mozhe', 'Atkinson', 'MATKINSO@company.com', '6501246234', '30-10-2005', '16', '2800', '121'),
+	('131', 'James', '03low', 'JAMRLOW@company.com', '6501247234', '16-02-2005', '16', '2500', '121'),
+	('132', 'TJ', 'Olson', 'TJOLSON@company.com', '6501248234', '10-04-2007', '16', '2100', '121'),
+	('133', 'Jason', 'Mallin', 'JMALLIN@company.com', '6501271934', '14-06-2004', '16', '3300', '122'),
+	('134', 'Michael', 'Rogers', 'MROGERS@company.com', '6501271834', '26-08-2006', '16', '2900', '122'),
+	('135', 'Ki', 'Gee', 'KGEE@company.com', '6501271734', '12-12-2007', '16', '2400', '122'),
+	('136', 'Hazel', 'Philtanker', 'HPHILTAN@company.com', '6501271634', '06-02-2008', '16', '2200', '122'),
+	('137', 'Renske', 'Ladwig', 'RLADWIG@company.com', '6501211234', '14-07-2003', '16', '3600', '123'),
+	('138', 'Stephen', 'Stiles', 'SSTILES@company.com', '6501212034', '26-10-2005', '16', '3200', '123'),
+	('139', 'John', 'Seo', 'JSEO@company.com', '6501212019', '12-02-2006', '16', '2700', '123'),
+	('140', 'Joshua', 'Patel', 'JPATEL@company.com', '6501211834', '06-04-2006', '16', '2500', '123');
+
+SET DateStyle TO Default;
