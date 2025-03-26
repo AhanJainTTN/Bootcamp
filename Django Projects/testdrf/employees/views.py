@@ -1,12 +1,85 @@
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from rest_framework.generics import GenericAPIView
 from rest_framework import viewsets
-from .models import Employees
-from .serializers import EmployeeSerializer
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from employees.serializers import EmployeeSerializer
+from employees.models import Employees
+
+"""
+API Endpoints for Employee Management:
+
+    GET /employees/
+    Retrieve a list of all employees.
+
+    GET /employees/<int:id>/
+    Retrieve details of a specific employee by ID.
+
+    POST /employees/
+    Create a new employee.
+
+    PUT /employees/<int:id>/
+    Fully update an existing employee by ID.
+
+    PATCH /employees/<int:id>/
+    Partially update an existing employee by ID.
+
+    DELETE /employees/<int:id>/
+    Delete an employee by ID.
+
+TODO: Implement each of these endpoints using all available methods in Django and Django REST Framework (DRF).
+
+Django (Core)
+    Function Based Views
+    Class Based Views (CBVs)
+        Custom CBVs
+        Generic CBVs
+        Mixins
+"""
+
+# Django (Core) - CBV - Custom CBV
+from django.views import View
+from django.forms.models import model_to_dict
+
+
+class EmployeeView(View):
+
+    def get(self, request, employee_id=None):
+        if employee_id:
+            employee = get_object_or_404(Employees, employee_id=employee_id)
+            # .values() equivalent for a single object
+            employee = model_to_dict(employee)
+            return JsonResponse(employee)
+
+        # values vs values_list: Only values in values_list
+        # both keys and values in values
+        employees = (
+            Employees.objects.all()
+            .order_by("-employee_id")
+            .values("employee_id", "first_name", "last_name", "hire_date")
+        )
+        return JsonResponse(list(employees), safe=False)
+
+    def post(self, request):
+        pass
+
+    def put(self, request, employee_id):
+        employee = get_object_or_404(Employees, employee_id)
+        return employee
+
+    def patch(self, request, employee_id):
+        employee = get_object_or_404(Employees, employee_id)
+        return employee
+
+    def delete(self, request, employee_id):
+        employee = get_object_or_404(Employees, employee_id)
+        employee_id = employee.employee_id
+        employee.delete()
+
+        return HttpResponse({**employee, "employee_id": employee_id})
 
 
 # ViewSet
