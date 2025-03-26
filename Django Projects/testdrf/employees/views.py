@@ -1,5 +1,6 @@
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
+import json
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework import viewsets
@@ -7,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from employees.serializers import EmployeeSerializer
-from employees.models import Employees
+from employees.models import Employees, Jobs
 
 """
 API Endpoints for Employee Management:
@@ -54,6 +55,13 @@ class EmployeeView(View):
             employee = model_to_dict(employee)
             return JsonResponse(employee)
 
+        # Django model instances (<Employee1>) are not JSON serializable by default .values() is needed to convert to QuerySet object which is JSON serializable when wrapped with list()
+        # without .values():
+        # <class 'django.db.models.query.QuerySet'>
+        # <QuerySet [<Employees: Employees object (206)>]>
+        # with .values():
+        # <class 'django.db.models.query.QuerySet'>
+        # <QuerySet [{'first_name': 'William'}]>
         # values vs values_list: Only values in values_list
         # both keys and values in values
         employees = (
@@ -61,25 +69,73 @@ class EmployeeView(View):
             .order_by("-employee_id")
             .values("employee_id", "first_name", "last_name", "hire_date")
         )
+        # why list() - converts lazy QuerySet to dictionary
+        # A QuerySet is lazy and not inherently serializable to JSON
+        # JsonResponse expects a dictionary by default, or a serializable list if safe=False
         return JsonResponse(list(employees), safe=False)
 
     def post(self, request):
-        pass
+        data = json.loads(request.body)
+        data["job"] = get_object_or_404(Jobs, job_id=data["job"])
+        data["manager"] = get_object_or_404(Employees, employee_id=data["manager"])
+        employee = Employees.objects.create(**data)
+
+        return JsonResponse({"created": model_to_dict(employee)})
+
+    # why filter? - Getting a single object using get returns a model instance
+    # this model instance has no update method
+    # update method exists only for QuerySets
+    # why .values() here -> to make list(employee) JSON serializable for to show updated object
+    # update itself can take place with/without .values()
+    # alternate is to retrieve object again and use model_to_dict
+    def patch(self, request, employee_id):
+        # equivalent to list(queryset.filter(*args, **kwargs))
+        # does not work since no .update() on a list
+        # employee = get_list_or_404(Employees, employee_id=employee_id)
+
+        # employee = Employees.objects.filter(employee_id=employee_id).values("email")
+        employee = Employees.objects.filter(employee_id=employee_id)
+
+        if employee:
+            data = json.loads(request.body)
+            employee.update(**data)
+            employee = model_to_dict(employee.first())
+
+            return JsonResponse(employee)
+
+        return JsonResponse({"error": "No employee found."}, status=404)
 
     def put(self, request, employee_id):
-        employee = get_object_or_404(Employees, employee_id)
-        return employee
+        employee = Employees.objects.filter(employee_id=employee_id)
 
-    def patch(self, request, employee_id):
-        employee = get_object_or_404(Employees, employee_id)
-        return employee
+        if employee:
+            data = json.loads(request.body)
+            data["employee_id"] = employee_id
+
+            required_fields = {
+                f.name for f in Employees._meta.get_fields() if not f.is_relation
+            }
+
+            if not all(field in data for field in required_fields):
+                return JsonResponse(
+                    {"error": "Missing required fields for full update."}, status=400
+                )
+
+            employee.update(**data)
+            employee = model_to_dict(employee.first())
+
+            return JsonResponse(employee)
+
+        return JsonResponse({"error": "No employee found."}, status=404)
 
     def delete(self, request, employee_id):
-        employee = get_object_or_404(Employees, employee_id)
+        employee = get_object_or_404(Employees, employee_id=employee_id)
         employee_id = employee.employee_id
         employee.delete()
 
-        return HttpResponse({**employee, "employee_id": employee_id})
+        return JsonResponse(
+            {"deleted": {**model_to_dict(employee), "employee_id": employee_id}}
+        )
 
 
 # ViewSet
