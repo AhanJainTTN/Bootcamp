@@ -1,19 +1,14 @@
-from django.http import JsonResponse
-from .forms import CustomerForm, CustomerAuthenticationForm, ExcelForm
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
 from django.views.generic.edit import FormView
-from openpyxl import Workbook, load_workbook
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from customers.models import Customer
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
-from urllib.parse import urlparse
-from django.urls import is_valid_path
 import logging
+from openpyxl import load_workbook
+from accounts.forms import CustomerForm, CustomerAuthenticationForm, ExcelForm
 
 logger = logging.getLogger("user_actions")
 
@@ -89,15 +84,11 @@ class BulkUploadForm(FormView):
                         created_count += 1
                         print(customer)
 
-                except (IntegrityError, ValidationError) as e:
+                except (IntegrityError, ValidationError, Exception) as e:
                     form.add_error(None, f"Row {curr_row}: {str(e)}")
 
             if form.non_field_errors():
                 return self.form_invalid(form)
-
-            # total_entries = ws.max_row - 1
-            # summary = f"Total Entries: {total_entries}\nNew Entries: {created_count}\nErrors:\n{errors}"
-            # print(summary)
 
         except Exception as e:
             form.add_error(None, f"Error processing file: {str(e)}")
@@ -132,6 +123,9 @@ def user_login(request):
             form = CustomerAuthenticationForm()
 
             return redirect(next_url) if next_url else redirect("home")
+
+    if request.user.is_authenticated:
+        return redirect("home")
 
     return render(request, "login.html", {"form_data": form})
 
