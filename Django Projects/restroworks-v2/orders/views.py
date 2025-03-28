@@ -7,7 +7,6 @@ from menu.models import MenuItem
 from django.views.generic import ListView, DetailView, FormView
 from .forms import OrderUpdateForm
 from django.views import View
-from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
@@ -19,6 +18,10 @@ class CreateOrderView(LoginRequiredMixin, View):
         order = Order.objects.create(customer=customer)
         has_valid_items = False
 
+        # request.POST gives a dictionary like object where the values are lists (since there can be multiple values for the same key).
+        # request.POST.items() returns an iterator that provides a sequence of key-value pairs, but the values will be the first element in the list, not the entire list of values.
+        # request.POST.items() essentially iterates over the dictionary and gives the first value for each key because it's designed to simplify the most common case, where there’s only one value for each key.
+        # Use request.POST.getlist(key) to get all values for a key in the case of multiple values.
         for key, value in request.POST.items():
             if key == "csrfmiddlewaretoken":
                 continue
@@ -34,6 +37,7 @@ class CreateOrderView(LoginRequiredMixin, View):
                         price=menu_item.price,
                     )
                     has_valid_items = True
+
             except (ValueError, MenuItem.DoesNotExist):
                 continue
 

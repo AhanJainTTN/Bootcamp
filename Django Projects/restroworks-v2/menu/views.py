@@ -1,15 +1,11 @@
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from menu.models import MenuItem
 from menu.forms import MenuItemForm
-from orders.models import Order, OrderItem
-from customers.models import Customer
-from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db import transaction
 from django.views.generic import (
     ListView,
     DetailView,

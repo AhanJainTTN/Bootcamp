@@ -5,6 +5,7 @@ from .validators import validate_image
 
 class MenuItemForm(forms.ModelForm):
 
+    # define widgets in Meta class if input styles have to be customised
     class Meta:
         model = MenuItem
         fields = ["name", "description", "price", "image"]
