@@ -17,6 +17,9 @@ class Employees(models.Model):
         db_table = "employees"
         verbose_name_plural = "Employees"
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.employee_id})"
+
 
 class Jobs(models.Model):
     job_id = models.BigAutoField(primary_key=True)
@@ -27,3 +30,6 @@ class Jobs(models.Model):
         managed = True
         db_table = "jobs"
         verbose_name_plural = "Jobs"
+
+    def __str__(self):
+        return f"{self.job_code}"

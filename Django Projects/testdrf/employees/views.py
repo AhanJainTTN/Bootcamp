@@ -1,6 +1,6 @@
 import json
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404, render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework import viewsets
@@ -39,7 +39,70 @@ Django (Core)
         Custom CBVs
         Generic CBVs
         Mixins
+
+Django (DRF)
+    Function Based Views
+    Class Based Views (CBVs)
+        Custom CBVs
+        Generic CBVs
+        Mixins
 """
+# Django (Core) - Generic CBVs
+# https://docs.djangoproject.com/en/5.1/ref/class-based-views/generic-display/#generic-display-views
+from django.views.generic import (
+    DetailView,
+    ListView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+)
+
+
+class EmployeeDetailView(DetailView):
+    model = Employees
+    template_name = "employees_detail.html"
+    context_object_name = "employee"
+
+
+class EmployeeListView(ListView):
+    model = Employees
+    template_name = "employees_list.html"
+    context_object_name = "employees"
+
+
+# A view that displays a form for creating an object, redisplaying the form with validation errors (if there are any) and saving the object. By default, looks for a template with model_form.html (employees_form.html)
+class EmployeeCreateView(CreateView):
+    model = Employees
+    fields = "__all__"
+    template_name = "employees_form.html"
+
+    # saves the object and redirects to success_url
+    # here overridden because we just want to render a success template directly
+    # without creating a new view for it
+    def form_valid(self, form):
+        self.object = form.save()
+        return render(self.request, "success.html")
+
+
+class EmployeeUpdateView(UpdateView):
+    model = Employees
+    template_name = "employees_form.html"
+    fields = "__all__"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return render(self.request, "success.html")
+
+
+class EmployeeDeleteView(DeleteView):
+    model = Employees
+    template_name = "employees_form.html"
+    fields = "__all__"
+
+    def form_valid(self, form):
+        self.object.delete()
+        return render(self.request, "success.html")
+
 
 # Django (Core) - CBV - Custom CBV
 from django.views import View
@@ -74,6 +137,14 @@ class EmployeeView(View):
         # JsonResponse expects a dictionary by default, or a serializable list if safe=False
         return JsonResponse(list(employees), safe=False)
 
+    # request.POST vs request.body
+    # request.POST used for form data (application/x-www-form-urlencoded or multipart/form-data)
+    # Works automatically for form submissions (e.g., from HTML forms).
+    # Django parses the body and populates request.POST as a dictionary-like object (QueryDict)
+    # Only works for POST requests with form-encoded data
+    # request.body used for raw request payload (bytes), regardless of method (POST, PUT, PATCH, etc.).
+    # must be manually decoded and parsed.
+    # Works for any HTTP method.
     def post(self, request):
         data = json.loads(request.body)
         data["job"] = get_object_or_404(Jobs, job_id=data["job"])
@@ -213,19 +284,19 @@ class CustomCBVEmployee(APIView):
 
 
 # Generic Concrete CBVs
-class EmployeeCreateView(generics.CreateAPIView):
+class EmployeeCreateViewDRF(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Employees.objects.all()
     serializer_class = EmployeeSerializer
 
 
-class EmployeeDetailView(generics.RetrieveAPIView):
+class EmployeeDetailViewDRF(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Employees.objects.all()
     serializer_class = EmployeeSerializer
 
 
-class AllEmployeesListView(generics.ListAPIView):
+class AllEmployeesListViewDRF(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Employees.objects.all()
     serializer_class = EmployeeSerializer
@@ -233,14 +304,14 @@ class AllEmployeesListView(generics.ListAPIView):
 
 # By default, only PUT and PATCH are allowed
 # We can pass a full resource through PATCH as well
-class EmployeeUpdateView(generics.UpdateAPIView):
+class EmployeeUpdateViewDRF(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Employees.objects.all()
     serializer_class = EmployeeSerializer
     partial = True
 
 
-class EmployeeDeleteView(generics.DestroyAPIView):
+class EmployeeDeleteViewDRF(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Employees.objects.all()
     serializer_class = EmployeeSerializer

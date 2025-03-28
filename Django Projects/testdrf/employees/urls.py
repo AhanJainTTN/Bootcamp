@@ -3,12 +3,29 @@ from rest_framework import routers
 from . import views
 
 urlpatterns = [
-    path("", views.EmployeeView.as_view(), name="employee-list-create"),
+    path("", views.EmployeeListView.as_view(), name="employee-list"),
     path(
-        "<int:employee_id>/",
-        views.EmployeeView.as_view(),
-        name="employee-detail-update",
+        "<int:pk>/",
+        views.EmployeeDetailView.as_view(),
+        name="employee-detail",
     ),
+    path("create/", views.EmployeeCreateView.as_view(), name="employee-create"),
+    path(
+        "update/<int:pk>/",
+        views.EmployeeUpdateView.as_view(),
+        name="employee-update",
+    ),
+    path(
+        "delete/<int:pk>/",
+        views.EmployeeDeleteView.as_view(),
+        name="employee-delete",
+    ),
+    # path("", views.EmployeeView.as_view(), name="employee-list-create"),
+    # path(
+    #     "<int:employee_id>/",
+    #     views.EmployeeView.as_view(),
+    #     name="employee-detail-update",
+    # ),
     # path("", views.CustomCBVEmployee.as_view(), name="employee-list-create"),
     # path(
     #     "<int:employee_id>/",
