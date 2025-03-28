@@ -19,7 +19,6 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     form_class = DateRangeForm
 
     def test_func(self):
-        # return True
         return self.request.user.is_staff
 
     def form_valid(self, form):
@@ -48,7 +47,7 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         # Menu Item Metrics
         most_popular_item = (
             MenuItem.objects.annotate(
-                order_count=Count("orderitem", filter=Q(orderitem__order__status=3))
+                order_count=Count("order_item", filter=Q(order_item__order__status=3))
             )
             .order_by("-order_count")
             .values("order_count", "name")
@@ -69,10 +68,10 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             MenuItem.objects.annotate(
                 total_revenue=Sum(
                     ExpressionWrapper(
-                        F("orderitem__price") * F("orderitem__quantity"),
+                        F("order_item__price") * F("order_item__quantity"),
                         output_field=DecimalField(),
                     ),
-                    filter=Q(orderitem__order__status=3),
+                    filter=Q(order_item__order__status=3),
                 )
             )
             .order_by("-total_revenue")
