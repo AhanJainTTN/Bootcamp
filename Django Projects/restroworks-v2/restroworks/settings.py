@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "accounts",
     "customers",
     "menu",
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -197,3 +199,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #         "level": "WARNING",
 #     },
 # }
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
