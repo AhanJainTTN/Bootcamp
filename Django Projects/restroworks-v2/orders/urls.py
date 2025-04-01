@@ -17,7 +17,7 @@ urlpatterns = [
     ),
     path(
         "update/<int:order_id>",
-        login_required(views.MenuItemFormView.as_view()),
+        login_required(views.OrderStatusUpdateView.as_view()),
         name="update_order",
     ),
 ]
