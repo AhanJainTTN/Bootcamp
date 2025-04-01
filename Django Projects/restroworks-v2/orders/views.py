@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
 from customers.models import Customer
 from menu.models import MenuItem
-from django.views.generic import ListView, DetailView, FormView
+from django.views.generic import ListView, DetailView, FormView, UpdateView
+from django.views.generic.edit import FormMixin
 from .forms import OrderUpdateForm
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 
 
@@ -50,38 +51,101 @@ class CreateOrderView(LoginRequiredMixin, View):
         return redirect(f"/orders/view/{order.id}")
 
 
-class OrderDetailView(DetailView):
+class OrderDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = "order_details.html"
     model = Order
     context_object_name = "order"
+
+    def test_func(self):
+        order = Order.objects.get(pk=self.kwargs["pk"])
+        return self.request.user.is_staff or order.customer == self.request.user
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related("customer", "customer__user")
+            .prefetch_related("items", "items__menu_item")
+        )
+
+    # get_queryset() is called twice using this implementation
+    # first time is when get_object() is called in test_func()
+    # second time while fetching the actual object to display
+    # def test_func(self):
+    #     order = self.get_object()
+    #     return self.request.user.is_staff or order.customer.user == self.request.user
 
 
 class OrderListView(ListView):
     template_name = "order_list.html"
     model = Order
     context_object_name = "orders"
+    paginate_by = 10
 
+    # optimisations using select related and prefetch related
+    # Total queries for N Orders and M Order Items per Order:
+    #   1 (to fetch all Orders and all Customers associated to the Orders using select_related)
+    #   + 1 (for all OrderItems associated to all Orders using prefetch_related)
+    #   + 1 (for all MenuItems associated with all OrderItems using prefetch_related)
+    # always 3 hits
     def get_queryset(self):
         user = self.request.user
         status = self.request.GET.get("status")
 
         if user.is_staff:
-            queryset = Order.objects.all()
+            queryset = Order.objects.select_related("customer").prefetch_related(
+                "items", "items__menu_item"
+            )
         else:
-            queryset = Order.objects.filter(customer__user=user)
+            # no need to add customer__user to select related as filter automatically optimises that
+            # only necessary if customer.user is accessed in code/template
+            queryset = (
+                Order.objects.select_related("customer")
+                .prefetch_related("items", "items__menu_item")
+                .filter(customer__user=user)
+            )
 
         if status:
             queryset = queryset.filter(status=status)
 
         return queryset.order_by("-created_at")
 
+    # This is bad practice because in the template, order.customer, order.items and items.name are being accessed
+    # this will result in many unneccessary DB calls which will lead to poor performance.
+    # Total queries for N Orders and M Order Items per Order:
+    #   1 (to fetch all orders)
+    #   + N (for each customer associated to an order)
+    #   + M (for every OrderItem associated with the order)
+    #   + M (for every MenuItem associated with an OrderItem)
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     status = self.request.GET.get("status")
 
-class MenuItemFormView(FormView):
+    #     if user.is_staff:
+    #         queryset = Order.objects.all()
+    #     else:
+    #         queryset = Order.objects.filter(customer__user=user)
+
+    #     if status:
+    #         queryset = queryset.filter(status=status)
+
+    #     return queryset.order_by("-created_at")
+
+
+class OrderStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = "order_details.html"
     form_class = OrderUpdateForm
 
+    def test_func(self):
+        return self.request.user.is_staff
+
     def dispatch(self, request, *args, **kwargs):
-        self.order = get_object_or_404(Order, id=self.kwargs.get("order_id"))
+        self.order = (
+            Order.objects.filter(id=self.kwargs.get("order_id"))
+            .select_related("customer", "customer__user")
+            .prefetch_related("items", "items__menu_item")
+            .get()
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
