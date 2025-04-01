@@ -26,16 +26,30 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         end_date = form.cleaned_data["end_date"]
 
         # Order Metrics
-        orders = Order.objects.filter(created_at__date__range=(start_date, end_date))
-        total_order_count = orders.count()
-        completed_order_count = orders.filter(status=3).count()
-        cancelled_order_count = orders.filter(status=4).count()
+        # TODO: Improve performance
+        # orders = Order.objects.filter(created_at__date__range=(start_date, end_date))
+        # total_order_count = orders.count()
+        # completed_order_count = orders.filter(status=3).count()
+        # cancelled_order_count = orders.filter(status=4).count()
+        # completed_revenue = (
+        #     orders.filter(status=3)
+        #     .aggregate(Sum("total_price"))
+        #     .get("total_price__sum", 0)
+        # )
 
-        completed_revenue = (
-            orders.filter(status=3)
-            .aggregate(Sum("total_price"))
-            .get("total_price__sum", 0)
+        order_metrics = Order.objects.filter(
+            created_at__date__range=(start_date, end_date)
+        ).aggregate(
+            total_order_count=Count("id"),
+            completed_order_count=Count("id", filter=Q(status=3)),
+            cancelled_order_count=Count("id", filter=Q(status=4)),
+            completed_revenue=Sum("total_price", filter=Q(status=3)),
         )
+
+        total_order_count = order_metrics.get("total_order_count", 0)
+        completed_order_count = order_metrics.get("completed_order_count", 0)
+        cancelled_order_count = order_metrics.get("cancelled_order_count", 0)
+        completed_revenue = order_metrics.get("completed_revenue", 0)
 
         average_order_value = (
             completed_revenue / completed_order_count if completed_order_count else 0
