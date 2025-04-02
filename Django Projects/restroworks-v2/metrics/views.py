@@ -61,7 +61,13 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         # Menu Item Metrics
         most_popular_item = (
             MenuItem.objects.annotate(
-                order_count=Count("order_item", filter=Q(order_item__order__status=3))
+                order_count=Count(
+                    "order_item",
+                    filter=Q(
+                        order_item__order__status=3,
+                        created_at__date__range=(start_date, end_date),
+                    ),
+                )
             )
             .order_by("-order_count")
             .values("order_count", "name")
@@ -78,6 +84,8 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             most_popular_item.get("name") if most_popular_item_count else "N/A"
         )
 
+        # works without ExpressionWrapper bevause DB automatically resolves the type
+        # good practice to leave it on if using two values with different types
         top_item = (
             MenuItem.objects.annotate(
                 total_revenue=Sum(
@@ -85,7 +93,10 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                         F("order_item__price") * F("order_item__quantity"),
                         output_field=DecimalField(),
                     ),
-                    filter=Q(order_item__order__status=3),
+                    filter=Q(
+                        order_item__order__status=3,
+                        created_at__date__range=(start_date, end_date),
+                    ),
                 )
             )
             .order_by("-total_revenue")
@@ -278,9 +289,9 @@ class MetricsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 #     def handle_no_permission(self):
 #         return JsonResponse({"error": "Unauthorized access."}, status=403)
 
-
 # @login_required
 # def order_metrics(request):
+
 
 #     if not request.user.is_staff:
 #         return JsonResponse("error: Unauthorised access.", status=403)
