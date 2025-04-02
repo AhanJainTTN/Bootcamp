@@ -16,27 +16,6 @@ from django.views.generic import (
 from django.contrib import messages
 
 
-"""
-GET
-/ : Get all (template: menuitem_list.html)
-/<int: id> : Get one (template: menuitem_detail.html)
-/add/: show form to add (template: menuitem_form.html)
-
-POST
-/: place order
-/add/: Create one
-
-PUT
-/<int: id>
-
-PATCH
-/<int: id>
-
-DELETE
-/<int: id>
-"""
-
-
 class MenuItemListView(LoginRequiredMixin, ListView):
     model = MenuItem
     template_name = "menuitem_list.html"
@@ -65,24 +44,15 @@ class MenuItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     form_class = MenuItemForm
     template_name = "menuitem_form.html"
 
+    def test_func(self):
+        return self.request.user.is_staff
+
     def get_success_url(self):
         return f"/menu/view/{self.kwargs["pk"]}/"
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-
-class MenuItemDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = MenuItem
-    success_url = "menuitem_list.html"
-
-    def test_func(self):
-        return self.request.user.is_staff
 
 
 @login_required
 def delete_item(request, item_id):
-
     if request.user.is_staff:
         item = get_object_or_404(MenuItem, id=item_id)
         item_name = item.name

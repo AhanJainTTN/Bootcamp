@@ -10,13 +10,11 @@ class IPRestrictMiddleware:
         self.get_response = get_response
 
     def __call__(self, request, *args, **kwds):
-        ip_address = request.META.get("HTTP_HOST").split(":")[0]
-        print(ip_address)
         ip_address = request.META.get("REMOTE_ADDR")
-        print(ip_address)
 
         if ip_address in BLOCKED_IPS:
             return HttpResponse("<h1>FORBIDDEN<h1>", status=403)
+
         response = self.get_response(request)
         return response
 

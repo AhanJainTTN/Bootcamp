@@ -4,8 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
 from customers.models import Customer
 from menu.models import MenuItem
-from django.views.generic import ListView, DetailView, FormView, UpdateView
-from django.views.generic.edit import FormMixin
+from django.views.generic import ListView, DetailView, FormView
 from .forms import OrderUpdateForm
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -58,7 +57,7 @@ class OrderDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def test_func(self):
         order = Order.objects.get(pk=self.kwargs["pk"])
-        return self.request.user.is_staff or order.customer == self.request.user
+        return self.request.user.is_staff or order.customer.user == self.request.user
 
     def get_queryset(self):
         return (
@@ -139,6 +138,8 @@ class OrderStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def test_func(self):
         return self.request.user.is_staff
 
+    # overridden to reduce DB access by assigning order to class attribute
+    # also optimised since related values are being accessed in template
     def dispatch(self, request, *args, **kwargs):
         self.order = (
             Order.objects.filter(id=self.kwargs.get("order_id"))
@@ -148,6 +149,7 @@ class OrderStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         )
         return super().dispatch(request, *args, **kwargs)
 
+    # overridden to get the order data in the template
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["order"] = self.order
@@ -158,6 +160,7 @@ class OrderStatusUpdateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         self.order.save(update_fields=["status"])
         return super().form_valid(form)
 
+    # overridden to create dynamic success_url
     def get_success_url(self):
         order_id = self.kwargs.get("order_id")
         return f"/orders/view/{order_id}"

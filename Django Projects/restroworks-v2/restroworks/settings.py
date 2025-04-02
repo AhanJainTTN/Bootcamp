@@ -140,66 +140,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# https://signoz.io/guides/django-logging/
-
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "formatters": {
-#         "verbose": {
-#             "format": "{levelname} {asctime} {module} {message}",
-#             "style": "{",
-#         },
-#         "simple": {
-#             "format": "{levelname} {message}",
-#             "style": "{",
-#         },
-#     },
-#     "handlers": {
-#         "request_metadata": {
-#             "level": "INFO",
-#             "class": "logging.FileHandler",
-#             "filename": "logs/request_metadata.log",
-#             "formatter": "verbose",
-#         },
-#         "user_actions": {
-#             "level": "INFO",
-#             "class": "logging.FileHandler",
-#             "filename": "logs/user_actions.log",
-#             "formatter": "verbose",
-#         },
-#         "file": {
-#             "level": "INFO",
-#             "class": "logging.FileHandler",
-#             "filename": "logs/info.log",
-#             "formatter": "verbose",
-#         },
-#         "console": {
-#             "class": "logging.StreamHandler",
-#             "formatter": "simple",
-#         },
-#     },
-#     "loggers": {
-#         "request_metadata": {
-#             "handlers": ["request_metadata"],
-#             "level": "INFO",
-#         },
-#         "user_actions": {
-#             "handlers": ["user_actions"],
-#             "level": "INFO",
-#         },
-#         "django": {
-#             "handlers": ["console"],
-#             "level": "INFO",
-#             "propagate": False,
-#         },
-#     },
-#     "root": {
-#         "handlers": ["console", "file", "user_actions", "request_metadata"],
-#         "level": "WARNING",
-#     },
-# }
-
 INTERNAL_IPS = [
     "127.0.0.1",
 ]

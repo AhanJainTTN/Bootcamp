@@ -6,11 +6,8 @@ from django.contrib.auth.password_validation import validate_password
 from customers.models import Customer
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
-import logging
 from openpyxl import load_workbook
 from accounts.forms import CustomerForm, CustomerAuthenticationForm, ExcelForm
-
-logger = logging.getLogger("user_actions")
 
 
 # Lifecycle of a FormView:
@@ -105,27 +102,25 @@ def user_signup(request):
         if form.is_valid():
             customer = form.save()
             if customer:
-                # logging.info(f"New user registration: {form.cleaned_data["username"]}")
                 form = CustomerForm()
-                return render(request, "home.html", {"form_data": form})
+                return render(request, "home.html")
 
     return render(request, "signup.html", {"form_data": form})
 
 
 def user_login(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
     form = CustomerAuthenticationForm()
     next_url = request.GET.get("next")
     if request.method == "POST":
         form = CustomerAuthenticationForm(data=request.POST)
         if form.is_valid():
-            # logging.info(f"User login: {form.cleaned_data["username"]}")
             login(request, form.get_user())
             form = CustomerAuthenticationForm()
 
             return redirect(next_url) if next_url else redirect("home")
-
-    if request.user.is_authenticated:
-        return redirect("home")
 
     return render(request, "login.html", {"form_data": form})
 
@@ -135,6 +130,5 @@ def render_home(request):
 
 
 def user_logout(request):
-    logging.info(f"User logged out: {request.user}")
     logout(request)
     return redirect("home")
