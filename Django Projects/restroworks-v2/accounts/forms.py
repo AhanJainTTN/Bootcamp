@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from customers.models import Customer
 from django.db import IntegrityError, transaction
 from .validators import validate_file_extension
+from django.core.validators import RegexValidator
+
 
 # TODO: Is it better to use a clean_field function on a unique field to check for uniqueness using Objects.filter() in addition to having a UNIQUE constraint at the database level or let the database check it and handle the IntegrityError exception it raises. If the database is going to check it regardless, is that not better for performance? If yes, does this mean in this context we use clean_field() mainly for convenience?
 
@@ -14,10 +16,15 @@ from .validators import validate_file_extension
 # ModelForm is a regular Form which can automatically generate certain fields. The fields that are automatically generated depend on the content of the Meta class and, on which fields have already been defined declaratively. Basically, ModelForm will only generate fields that are missing from the form, or in other words, fields that weren’t defined declaratively.
 # no need to explicitly hash passwords - already taken care of
 class CustomerForm(UserCreationForm):
-    phone = forms.CharField(
-        max_length=10,
-        required=True,
-        widget=forms.TextInput(
+    phone = forms.IntegerField(
+        validators=[
+            RegexValidator(
+                regex=r"^\d{10}$",
+                message="Enter a valid 10 digit phone number without country code",
+                code="invalid_phone_number",
+            )
+        ],
+        widget=forms.NumberInput(
             attrs={"class": "input-field", "placeholder": "Enter phone"}
         ),
     )
