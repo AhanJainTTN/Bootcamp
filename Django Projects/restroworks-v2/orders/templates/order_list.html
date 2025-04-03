@@ -10,6 +10,8 @@
             <option value="3" {% if request.GET.status == '3' %}selected{% endif %}>Delivered</option>
             <option value="4" {% if request.GET.status == '4' %}selected{% endif %}>Cancelled</option>
         </select>
+        <label for="id_search" style="display: grid; place-content: center; font-size: 1rem">Search</label>
+        <input name="order_id" type="search" id="id_search" class="input-field" pattern="\d*">
         <button type="submit" class="btn-primary clr-1 order-status-button">Filter</button>
     </div>
     <a href="/orders/view/all">View All</a>

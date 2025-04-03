@@ -90,6 +90,7 @@ class OrderListView(ListView):
     def get_queryset(self):
         user = self.request.user
         status = self.request.GET.get("status")
+        order_id = self.request.GET.get("order_id")
 
         if user.is_staff:
             queryset = Order.objects.select_related("customer").prefetch_related(
@@ -106,6 +107,9 @@ class OrderListView(ListView):
 
         if status:
             queryset = queryset.filter(status=status)
+
+        if order_id:
+            queryset = queryset.filter(id=order_id.strip())
 
         return queryset.order_by("-created_at")
 

@@ -646,3 +646,8 @@ footer {
 .hidden-form {
   visibility: hidden;
 }
+
+.order-search-input {
+  flex-direction: row;
+  gap: 1rem;
+}
