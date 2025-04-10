@@ -1,0 +1,5 @@
+mkdir -p ~/.aws/
+cd creds
+cp config ~/.aws/
+cp credentials ~/.aws/
+ls ~/.aws/
