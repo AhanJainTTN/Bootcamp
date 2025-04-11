@@ -2,10 +2,14 @@ import os
 import boto3
 
 REGION = "ap-south-1"
-MEDIA_DIR = "/home/ahan/Documents/Bootcamp/Boto3/s3/{bucket_name}/"
-SAMPLE_MEDIA_DIR = "/home/ahan/Documents/sample_files/"
-
+MEDIA_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "s3", "{bucket_name}"
+)
+SAMPLE_MEDIA_DIR = os.path.join(os.path.expanduser("~"), "sample_files")
+print(SAMPLE_MEDIA_DIR)
 s3_resource = boto3.resource("s3")
+
+print()
 
 
 def upload_to_bucket(bucket_name, file_path, file_key=None):
@@ -30,7 +34,7 @@ def download_from_bucket(bucket_name, file_key):
 
         if not os.path.exists(local_path):
             s3_resource.Bucket(bucket_name).download_file(file_key, local_path)
-            print(f"{file_key} downloaded to {local_dir}.")
+            print(f"{file_key} downloaded to {local_path}.")
 
     except Exception as e:
         print(f"Error downloading {file_key}: {str(e)}")
@@ -79,17 +83,15 @@ def list_buckets(s3_resource):
 
 if __name__ == "__main__":
 
-    bucket_name = "test-bucket-boto3-20250410"
-
     print(list_buckets(s3_resource))
 
+    bucket_name = "test-bucket-boto3-20250410"
     print(get_bucket_objects(bucket_name))
 
-    file_path = "/home/ahan/Documents/sample_files/text_files/long-doc.txt"
-    upload_to_bucket(bucket_name, file_path)
+    file_path = os.path.join(SAMPLE_MEDIA_DIR, "text_files", "long-doc.txt")
+    # upload_to_bucket(bucket_name, file_path)
     print(get_bucket_objects(bucket_name))
 
     download_from_bucket(bucket_name, "long-doc.txt")
-
-    delete_from_bucket(bucket_name, "long-doc.txt")
+    # delete_from_bucket(bucket_name, "long-doc.txt")
     print(get_bucket_objects(bucket_name))
