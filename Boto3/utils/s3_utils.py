@@ -6,10 +6,19 @@ MEDIA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "s3", "{bucket_name}"
 )
 SAMPLE_MEDIA_DIR = os.path.join(os.path.expanduser("~"), "sample_files")
-print(SAMPLE_MEDIA_DIR)
+
 s3_resource = boto3.resource("s3")
 
-print()
+
+def upload_folder(bucket_name, folder):
+    """Uploads all files to S3 Bucket while retaining the folder structure."""
+
+    folder = os.path.abspath(folder)
+    for root, _, files in os.walk(folder):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_key = os.path.relpath(file_path, start=os.path.dirname(folder))
+            upload_to_bucket(bucket_name, file_path, file_key)
 
 
 def upload_to_bucket(bucket_name, file_path, file_key=None):
@@ -24,28 +33,43 @@ def upload_to_bucket(bucket_name, file_path, file_key=None):
         print(f"Error uploading {file_key}: {str(e)}")
 
 
-def download_from_bucket(bucket_name, file_key):
+def download_from_bucket(bucket_name, file_keys):
+    if not isinstance(file_keys, list):
+        raise TypeError("Invalid type for file_keys. List expected.")
+
+    for file_key in file_keys:
+        try:
+            local_dir = os.path.join(
+                MEDIA_DIR.format(bucket_name=bucket_name), os.path.dirname(file_key)
+            )
+            os.makedirs(local_dir, exist_ok=True)
+            local_path = os.path.join(local_dir, os.path.basename(file_key))
+
+            if not os.path.exists(local_path):
+                s3_resource.Bucket(bucket_name).download_file(file_key, local_path)
+                print(f"{file_key} downloaded to {local_path}.")
+            else:
+                print(f"{file_key} already exists at {local_path}.")
+
+        except Exception as e:
+            print(f"Error downloading {file_key}: {str(e)}")
+
+
+def delete_from_bucket(bucket_name, file_keys):
     try:
-        local_dir = os.path.join(
-            MEDIA_DIR.format(bucket_name=bucket_name), os.path.dirname(file_key)
-        )
-        os.makedirs(local_dir, exist_ok=True)
-        local_path = os.path.join(local_dir, os.path.basename(file_key))
+        if not isinstance(file_keys, list):
+            raise TypeError("Invalid type for file_keys. List expected.")
 
-        if not os.path.exists(local_path):
-            s3_resource.Bucket(bucket_name).download_file(file_key, local_path)
-            print(f"{file_key} downloaded to {local_path}.")
-
-    except Exception as e:
-        print(f"Error downloading {file_key}: {str(e)}")
-
-
-def delete_from_bucket(bucket_name, file_key):
-    try:
-        s3_resource.Object(bucket_name, file_key).delete()
-        print(f"{file_key} deleted successfully.")
-    except Exception as e:
-        print(f"Error deleting {file_key}: {str(e)}")
+        bucket = s3_resource.Bucket(bucket_name)
+        objects = [{"Key": key} for key in file_keys]
+        response = bucket.delete_objects(Delete={"Objects": objects})
+        deleted = [obj["Key"] for obj in response.get("Deleted", [])]
+        errors = response.get("Errors", [])
+        print(f"Deleted: {deleted}")
+        if errors:
+            print(f"Errors: {errors}")
+    except (TypeError, Exception) as e:
+        print(f"Batch deletion failed: {str(e)}")
 
 
 def get_bucket_objects(bucket_name):
@@ -84,14 +108,13 @@ def list_buckets(s3_resource):
 if __name__ == "__main__":
 
     print(list_buckets(s3_resource))
-
     bucket_name = "test-bucket-boto3-20250410"
+
+    bucket_objects = get_bucket_objects(bucket_name)
+    print(bucket_objects)
+
+    delete_from_bucket(bucket_name, bucket_objects)
     print(get_bucket_objects(bucket_name))
 
-    file_path = os.path.join(SAMPLE_MEDIA_DIR, "text_files", "long-doc.txt")
-    # upload_to_bucket(bucket_name, file_path)
-    print(get_bucket_objects(bucket_name))
-
-    download_from_bucket(bucket_name, "long-doc.txt")
-    # delete_from_bucket(bucket_name, "long-doc.txt")
-    print(get_bucket_objects(bucket_name))
+    # upload_folder(bucket_name, SAMPLE_MEDIA_DIR)
+    # print(get_bucket_objects(bucket_name))
