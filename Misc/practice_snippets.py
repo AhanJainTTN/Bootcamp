@@ -1139,3 +1139,82 @@ obj.method()
 # D method
 # B method
 # C method
+
+# slicing ignores additional elements
+my_list = [*range(10)]
+print(my_list[0:2000000])
+
+data = [
+    [
+        "Login email",
+        "Identifier",
+        "One-time password",
+        "Recovery code",
+        "First name",
+        "Last name",
+        "Department",
+        "Location",
+    ],
+    [
+        "rachel@example.com",
+        "9012",
+        "12se74",
+        "rb9012",
+        "Rachel",
+        "Booker",
+        "Sales",
+        "Manchester",
+    ],
+    [
+        "laura@example.com",
+        "2070",
+        "04ap67",
+        "lg2070",
+        "Laura",
+        "Grey",
+        "Depot",
+        "London",
+    ],
+    [
+        "craig@example.com",
+        "4081",
+        "30no86",
+        "cj4081",
+        "Craig",
+        "Johnson",
+        "Depot",
+        "London",
+    ],
+    [
+        "mary@example.com",
+        "9346",
+        "14ju73",
+        "mj9346",
+        "Mary",
+        "Jenkins",
+        "Engineering, HR",
+        "Manchester",
+    ],
+    [
+        "jamie@example.com",
+        "5079",
+        "09ja61",
+        "js5079",
+        "Jamie",
+        "Smith",
+        "Engineering",
+        "Manchester",
+    ],
+]
+
+column_widths = [
+    len(val) for val in [max(curr_row, key=len) for curr_row in list(zip(*data))]
+]
+print(column_widths)
+
+# [18, 10, 17, 13, 10, 9, 15, 10]
+
+rows = [1, 5, 7, 2]
+cols = [0, 3, 1, 2]
+
+print([*zip(rows, cols)])
