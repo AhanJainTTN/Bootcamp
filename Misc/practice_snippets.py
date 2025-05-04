@@ -94,7 +94,7 @@ class ContextManager:
 
     def __enter__(self):
         print("enter method called")
-        return self
+        # return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         print("exit method called")
@@ -342,6 +342,12 @@ y = x
 y = [1, 3, 3]
 print(x, y)
 # [1, 2, 3, 4, 5] [1, 3, 3]
+
+x = [1, 2, 3, 4, 5]
+y = x
+y.append(45)
+print(x, y)
+print(x is y)
 
 
 # default function arguments are evaluated only once at definition - here my_list is bound to funnction object as a default under __defaults__ and same my_list is appended to at each function call - solution use None as default and check for None inside function or use an immutable object like a tuple
@@ -1218,3 +1224,8 @@ rows = [1, 5, 7, 2]
 cols = [0, 3, 1, 2]
 
 print([*zip(rows, cols)])
+
+
+my_str = "abcdefgh"
+it = iter(my_str)
+print(next(it))
