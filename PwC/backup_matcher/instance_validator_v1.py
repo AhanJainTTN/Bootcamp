@@ -105,7 +105,7 @@ def create_spreadsheet(matched_df, missing_df, output_file):
 
 def dump_to_json(data):
     with open(
-        "/home/ahan/Documents/Bootcamp/PwC/backup_matcher/files/raw_data.json",
+        "/Users/ahan/Documents/GitHub/Bootcamp/PwC/backup_matcher/files/raw_data.json",
         "w",
     ) as file:
         json.dump(data, file)
@@ -113,7 +113,7 @@ def dump_to_json(data):
 
 def load_from_json():
     with open(
-        "/home/ahan/Documents/Bootcamp/PwC/backup_matcher/files/raw_data.json",
+        "/Users/ahan/Documents/GitHub/Bootcamp/PwC/backup_matcher/files/raw_data.json",
         "r",
     ) as file:
         return json.load(file)
@@ -121,17 +121,12 @@ def load_from_json():
 
 def test_code():
     base_dir = os.path.dirname(__file__)
-    local_file_path = os.path.join(base_dir, "files", "ec2_validator_result.xlsx")
-    excel_writer = pd.ExcelWriter(local_file_path, engine="openpyxl")
-    # load master_excel file to df (the file which will be validated against the raw_data i.e. values of the  "backup_data_dict"
+    output_file_path = os.path.join(base_dir, "files", "ec2_validator_result.xlsx")
+    excel_writer = pd.ExcelWriter(output_file_path, engine="openpyxl")
     master_data_file = os.path.join(base_dir, "files", "ec2_validator_master_data.xlsx")
     master_data = pd.read_excel(master_data_file, sheet_name=None)
 
     backup_data_dict = load_from_json()
-
-    for sheet in backup_data_dict:
-        for record in backup_data_dict[sheet]:
-            record.update({"ValidationDate": report_date})
 
     for accountid, rows_list in backup_data_dict.items():
 
@@ -184,7 +179,15 @@ def main():
     master_data_file = os.path.join(base_dir, "files", "ec2_validator_master_data.xlsx")
     output_file = os.path.join(base_dir, "files", "reconciled.xlsx")
 
-    test_code()
+    backup_data_dict = load_from_json()
+
+    for sheet in backup_data_dict:
+        for record in backup_data_dict[sheet]:
+            record.update({"ValidationDate": report_date})
+
+    dump_to_json(backup_data_dict)
+
+    # test_code()
 
     # raw_df = pd.read_excel(raw_data_file, sheet_name=None)
     # df_dict = {}

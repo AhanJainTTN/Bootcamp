@@ -53,7 +53,23 @@ def get_backup_details(instance_id, account_id, backup_client):
         return []
 
 
-def validate_instance_sheet(raw_data, master_data):
+def validate_sheet(raw_data, master_data):
+    """
+    Validates the raw_data DataFrame against the master_data DataFrame by checking
+    which rows from raw_data are present in master_data (based on 'InstanceName').
+
+    For matched/present rows, adds a 'BackupCountMatch' column indicating whether the
+    'BackupCount' values in raw_data and master_data match.
+
+    Parameters:
+        raw_data (pd.DataFrame): The raw data DataFrame to be validated.
+        master_data (pd.DataFrame): The master reference DataFrame.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]:
+            - matched_df: rows from raw_data that matched master_data, with an additional 'BackupCountMatch' column.
+            - missing_df: rows from raw_data that were not found in master_data.
+    """
     merged_sheet = pd.merge(
         left=raw_data, right=master_data, how="left", on=["InstanceName"]
     )
@@ -69,6 +85,22 @@ def validate_instance_sheet(raw_data, master_data):
     )
 
     return matched_df, missing_df
+
+
+def swap_column_values(df, col1, col2):
+    """
+    Swaps the values of two columns in a DataFrame.
+
+    Parameters:
+        df (pd.DataFrame): The DataFrame containing the columns.
+        col1 (str): The name of the first column to swap.
+        col2 (str): The name of the second column to swap.
+
+    Returns:
+        pd.DataFrame: The DataFrame with values of col1 and col2 swapped.
+    """
+    df[col1], df[col2] = df[col2].copy(), df[col1].copy()
+    return df
 
 
 def lambda_handler(event, context):
@@ -129,13 +161,14 @@ def lambda_handler(event, context):
 
                 # Serialize recovery_points to string
                 recovery_points = json.dumps(backup_details, default=str)
+
                 backup_data.append(
                     {
                         "InstanceID": instance_id,
                         "InstanceName": instance_name,
                         "BackupCount": backup_count,
                         "RecoveryPoints": recovery_points,
-                        "ValidationDate:": report_date,
+                        "ValidationDate": report_date,
                     }
                 )
             backup_data_dict[account_id] = backup_data
@@ -145,33 +178,49 @@ def lambda_handler(event, context):
         local_file_name = f"{file_name}_{str_time_stamp}.xlsx"
         local_file_path = f"{temp_file_path}{local_file_name}"
         headers = ["InstanceID", "InstanceName", "BackupCount", "RecoveryPoints"]
-
         # with open(local_file_path, "w", newline='') as csvfile:
         #     writer = csv.DictWriter(csvfile, fieldnames=headers)
         #     writer.writeheader()
         #     writer.writerows(backup_data)
 
-        excel_writer = pd.ExcelWriter(local_file_path, engine="openpyxl")
-
-        # load master_excel file to df (the file which will be validated against the raw_data i.e. values of the  "backup_data_dict"
-        master_data_file = "path/to/master_data_file"
+        # Loading master data file
+        master_data_file = "path/to/master/file"
         master_data = pd.read_excel(master_data_file, sheet_name=None)
 
+        output_sheets = {}
         for accountid, rows_list in backup_data_dict.items():
-            raw_dframe = pd.DataFrame(rows_list)
-
             try:
-                master_dframe = master_data[accountid]
+                master_df = master_data[accountid]
             except KeyError as e:
                 LOGGER.error(f"{accountid} absent in master sheet: {e}")
 
-            matched_df, missing_df = validate_instance_sheet(raw_dframe, master_dframe)
-            matched_df.to_excel(excel_writer, sheet_name=accountid, index=False)
-            missing_df.to_excel(
-                excel_writer, sheet_name=f"{accountid}_Missing", index=False
-            )
+            raw_df = pd.DataFrame(rows_list)
 
-        excel_writer.close()
+            # Special handling for Azure sheet:
+            # Azure environment uses InstanceID as unique identifier instead of InstanceName
+            # Therefore, swap values between InstanceID and InstanceName columns for consistency
+            if accountid == "Azure":
+                raw_df = swap_column_values(raw_df, "InstanceID", "InstanceName")
+                master_df = swap_column_values(master_df, "InstanceID", "InstanceName")
+
+            matched_df, missing_df = validate_sheet(raw_df, master_df)
+
+            # Swap columns back for Azure to restore original schema before exporting
+            if accountid == "Azure":
+                matched_df = swap_column_values(
+                    matched_df, "InstanceID", "InstanceName"
+                )
+                missing_df = swap_column_values(
+                    missing_df, "InstanceID", "InstanceName"
+                )
+
+            output_sheets[accountid] = matched_df
+            output_sheets[f"{accountid}_Missing"] = missing_df
+
+        # Write all processed sheets to a single Excel
+        with pd.ExcelWriter(local_file_path) as excel_writer:
+            for sheet_name, df in output_sheets.items():
+                df.to_excel(excel_writer, sheet_name=sheet_name, index=False)
 
         # Upload CSV file to S3
         s3_file_path = f"ec2-backup-reports/{str_time_stamp}/{local_file_name}"
