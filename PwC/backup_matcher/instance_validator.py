@@ -37,15 +37,18 @@ Output:
 """
 
 from datetime import datetime
+import json
 import os
 import pandas as pd
+
+report_date = datetime.today().strftime("%Y-%m-%d")
 
 # Load raw_data wb, master_data wb
 # for every sheet in raw_data wb
 #   check if sheet exists in master_data_wb
 #   if azure handle differently
-#   else run validate_data function and append result of matched and missing to "Present" and "Absent" dataframe respectively
-#   append sheet name to source column
+#   else run validate_instance_sheet and append result of matched and missing to "Present" and "Absent" dataframe respectively
+#   append sheet name to source column and date to Validation Date column
 #   dump dataframe to excel wb
 
 
@@ -100,14 +103,99 @@ def create_spreadsheet(matched_df, missing_df, output_file):
         missing_df.to_excel(writer, sheet_name="Absent", index=False)
 
 
+def dump_to_json(data):
+    with open(
+        "/home/ahan/Documents/Bootcamp/PwC/backup_matcher/files/raw_data.json",
+        "w",
+    ) as file:
+        json.dump(data, file)
+
+
+def load_from_json():
+    with open(
+        "/home/ahan/Documents/Bootcamp/PwC/backup_matcher/files/raw_data.json",
+        "r",
+    ) as file:
+        return json.load(file)
+
+
+def test_code():
+    base_dir = os.path.dirname(__file__)
+    local_file_path = os.path.join(base_dir, "files", "ec2_validator_result.xlsx")
+    excel_writer = pd.ExcelWriter(local_file_path, engine="openpyxl")
+    # load master_excel file to df (the file which will be validated against the raw_data i.e. values of the  "backup_data_dict"
+    master_data_file = os.path.join(base_dir, "files", "ec2_validator_master_data.xlsx")
+    master_data = pd.read_excel(master_data_file, sheet_name=None)
+
+    backup_data_dict = load_from_json()
+
+    for sheet in backup_data_dict:
+        for record in backup_data_dict[sheet]:
+            record.update({"ValidationDate": report_date})
+
+    for accountid, rows_list in backup_data_dict.items():
+
+        try:
+            master_dframe = master_data[accountid]
+        except KeyError as e:
+            print(f"{accountid} absent in master sheet: {e}")
+
+        raw_dframe = pd.DataFrame(rows_list)
+
+        if accountid == "Azure":
+            raw_dframe.rename(
+                columns={
+                    "InstanceID": "InstanceName",
+                    "InstanceName": "InstanceID",
+                },
+                inplace=True,
+            )
+            master_dframe.rename(
+                columns={
+                    "InstanceID": "InstanceName",
+                    "InstanceName": "InstanceID",
+                },
+                inplace=True,
+            )
+
+        matched_df, missing_df = validate_instance_sheet(raw_dframe, master_dframe)
+
+        if accountid == "Azure":
+            matched_df.rename(
+                columns={"InstanceName": "InstanceID", "InstanceID": "InstanceName"},
+                inplace=True,
+            )
+            missing_df.rename(
+                columns={"InstanceName": "InstanceID", "InstanceID": "InstanceName"},
+                inplace=True,
+            )
+
+        matched_df.to_excel(excel_writer, sheet_name=accountid, index=False)
+        missing_df.to_excel(
+            excel_writer, sheet_name=f"{accountid}_Missing", index=False
+        )
+
+    excel_writer.close()
+
+
 def main():
     base_dir = os.path.dirname(__file__)
     raw_data_file = os.path.join(base_dir, "files", "ec2_validator_raw_data.xlsx")
     master_data_file = os.path.join(base_dir, "files", "ec2_validator_master_data.xlsx")
     output_file = os.path.join(base_dir, "files", "reconciled.xlsx")
 
-    matched_df, missing_df = reconcile_all_sheets(raw_data_file, master_data_file)
-    create_spreadsheet(matched_df, missing_df, output_file)
+    test_code()
+
+    # raw_df = pd.read_excel(raw_data_file, sheet_name=None)
+    # df_dict = {}
+
+    # for df in raw_df:
+    #     df_dict[df] = raw_df[df].to_dict("records")
+
+    # dump_to_json(df_dict)
+
+    # matched_df, missing_df = reconcile_all_sheets(raw_data_file, master_data_file)
+    # create_spreadsheet(matched_df, missing_df, output_file)
 
 
 if __name__ == "__main__":
