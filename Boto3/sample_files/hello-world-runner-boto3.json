@@ -1,0 +1,51 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "hello-world-boto3",
+      "image": "888577028881.dkr.ecr.ap-south-1.amazonaws.com/test-boto3-deploy:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "name": "hello-world-80-tcp",
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/HelloWorldRunner",
+          "mode": "non-blocking",
+          "awslogs-create-group": "true",
+          "max-buffer-size": "25m",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "HelloWorldRunnerBoto3",
+  "executionRoleArn": "arn:aws:iam::888577028881:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "volumes": [],
+
+  "placementConstraints": [],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "enableFaultInjection": false
+}

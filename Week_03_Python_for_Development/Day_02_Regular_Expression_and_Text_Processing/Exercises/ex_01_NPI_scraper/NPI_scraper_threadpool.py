@@ -11,6 +11,7 @@ Example list of NPI numbers: "1275568826" "1356637649" "1841383767" "1275928012"
 import requests
 import pickle
 import json
+import concurrent.futures
 import threading
 import time
 from typing import Dict, List
@@ -41,32 +42,28 @@ def process_id(npi_id: int) -> Dict[str, str]:
 
         # only add non empty results
         if id_data["result_count"] > 0:
-            # print(f"Processed {npi_id}.")
+            print(f"Processed {npi_id}.")
+            time.sleep(0.2)
             return id_data["results"]
 
     except InvalidNPIIDError as e:
         print(e)
 
 
+# middleman function no longer necessary as implementing threading using concurrent.futures allows us to access return value of the function the thread has been assigned to
 def process_all_ids(npi_ids: List[int]) -> List[Dict[str, str]]:
     """Takes in a list of NPI IDs and returns corresponding data as a list of dictionaries."""
     extracted_data = list()
-    threads = list()
-    lock = threading.Lock()
+    threads = len(npi_ids)
 
-    for npi_id in npi_ids:
-        thread = threading.Thread(target=(worker), args=(npi_id, extracted_data, lock))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        extracted_data = list(executor.map(process_id, npi_ids))
 
     return extracted_data
 
 
-# To-DO: Asyncio - thread pooling
 # A middleman function like worker is needed since original process_id was not designed to handle concurrency and rather than modifying original function, we use a worker function to improve readability and modularity.
+# This is no longer necessary when using thread pool from concurrent.futures - it allows us to access the return value of the function assigned to the thread.
 def worker(
     npi_id: int, extracted_data: List[Dict[str, str]], lock: threading.Lock
 ) -> None:
@@ -79,10 +76,9 @@ def worker(
         # that list operations like .extend() are thread-safe in CPython
         # https://stackoverflow.com/questions/38266186/is-extending-a-python-list-e-g-l-1-guaranteed-to-be-thread-safe
         extracted_data.extend(npi_data)
-        print(f"Processed {npi_id}.")
-        # with lock:
-        # extracted_data.extend(npi_data)
-        # print(f"Processed {npi_id}.")
+        with lock:
+            # extracted_data.extend(npi_data)
+            print(f"Processed {npi_id}.")
 
 
 def load_ids(id_path: str) -> List[int]:
