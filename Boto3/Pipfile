@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 boto3 = "*"
 docker = "*"
+pandas = "*"
+openpyxl = "*"
 
 [dev-packages]
 
