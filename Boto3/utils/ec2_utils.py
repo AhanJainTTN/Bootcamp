@@ -86,10 +86,10 @@ def list_instances(status=None, terminated=False):
 
 if __name__ == "__main__":
 
-    # instances = list_instances()
-    # print(instances)
+    instances = list_instances()
+    print(instances)
 
-    # create_instances(1, 1)
+    create_instances(3, 3)
 
     instances = list_instances()
     print(instances)
