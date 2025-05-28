@@ -262,20 +262,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-"""
-aws ssm describe-instance-information \
-  --filters "Key=InstanceIds,Values=i-011b451d9e0250a5f" \
-"""
-"""
-aws ssm describe-instance-information \
-  --filters "Key=InstanceIds,Values=i-03af62567bf6dcc1f" \
-"""
-"""
-i-011b451d9e0250a5f
-i-03af62567bf6dcc1f
-"""
-
-# get platform -> get managed_ids -> return managed_ids -> run command -> return command id -> get command output
-# main() -> pass platform list
