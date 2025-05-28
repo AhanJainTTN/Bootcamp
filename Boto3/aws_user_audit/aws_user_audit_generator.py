@@ -21,7 +21,7 @@ COMMANDS = {
     "Windows": ["Get-LocalUser | Select-Object -ExpandProperty Name"],
 }
 PLATFORMS = ["Linux", "Windows"]
-BATCH_SIZE = 1
+BATCH_SIZE = 50
 
 
 def get_instance_details():
@@ -158,7 +158,7 @@ def process_batch(command_id, managed_ids, max_wait, poll_interval):
 
         if len(completed_instances) == len(managed_ids):
             logging.info(
-                f"All command outputs retrieved. Processed {len(command_outputs)} out of {len(managed_ids)}"
+                f"All command outputs retrieved. Processed {len(command_outputs)} out of {len(managed_ids)} for the current batch."
             )
             return command_outputs
 
