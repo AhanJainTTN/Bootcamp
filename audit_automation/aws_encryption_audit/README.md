@@ -1,4 +1,4 @@
-# AWS User Audit Generator
+# AWS Encryption Audit Generator
 
 ## Setup and Execution (via AWS CloudShell)
 
@@ -13,20 +13,20 @@ pip install pandas openpyxl
 ### Step 3: Prepare Project Directory
 
 ```bash
-mkdir ~/aws_user_audit
-cd ~/aws_user_audit
+mkdir ~/aws_encryption_audit
+cd ~/aws_encryption_audit
 ```
 
 ### Step 4: Create the Script File
 
 ```bash
-nano aws_user_audit_generator.py
+nano aws_encryption_audit_generator.py
 ```
 
 ### Step 5: Execute the Script
 
 ```bash
-python aws_user_audit_generator.py
+python aws_encryption_audit_generator.py
 ```
 
 ### Step 6: Download File

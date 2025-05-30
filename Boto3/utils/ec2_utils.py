@@ -89,7 +89,7 @@ if __name__ == "__main__":
     instances = list_instances()
     print(instances)
 
-    create_instances(3, 3)
+    # create_instances(3, 3)
 
     instances = list_instances()
     print(instances)

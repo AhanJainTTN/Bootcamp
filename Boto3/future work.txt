@@ -1,0 +1,3 @@
+Support for Managed Instances
+Encryption Audit - Add way to run in CLI +
+Jenkins Audit - user email and access level - jenkins server already running on an ec2 instance

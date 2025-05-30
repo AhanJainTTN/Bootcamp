@@ -33,5 +33,5 @@ python aws_user_audit_generator.py
 
    * Click the `Actions` button in CloudShell
    * Select `Download File`
-   * Paste the full path printed by the script (e.g., `/home/cloudshell-user/aws_user_audit/files/AWS_User_Audit_2025_05_27.xlsx`)
+   * Paste the full path printed by the script.
    * Click `Download`

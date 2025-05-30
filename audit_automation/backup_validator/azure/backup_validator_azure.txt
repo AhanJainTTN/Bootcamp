@@ -1,0 +1,406 @@
+import argparse
+from datetime import datetime
+import logging
+import os
+import sys
+import numpy as np
+import pandas as pd
+from zoneinfo import ZoneInfo
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.compute import ComputeManagementClient
+from azure.mgmt.recoveryservicesbackup import RecoveryServicesBackupClient
+from azure.mgmt.recoveryservices import RecoveryServicesClient
+from azure.mgmt.resource import ResourceManagementClient
+
+# Configure custom logger
+LOGGER = logging.getLogger("backup_logger")
+LOGGER.setLevel(logging.INFO)
+
+# Stream handler to output to stdout
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter("%(levelname)s: %(message)s")
+handler.setFormatter(formatter)
+LOGGER.addHandler(handler)
+
+# Suppress noisy third-party loggers (Azure SDK, HTTP, etc.)
+for noisy_logger in ["azure", "urllib3", "msrest", "azure.core.pipeline"]:
+    logging.getLogger(noisy_logger).setLevel(logging.WARNING)
+
+
+# Config
+report_date = datetime.today().strftime("%Y-%m-%d")
+CONFIG = {
+    "subscription_id": None,
+    "compute_client": None,
+    "resource_client": None,
+    "recovery_client": None,
+    "recovery_backup_client": None,
+}
+
+
+def extract_recovery_point_count(
+    vault_name,
+    vault_resource_group,
+    container_name,
+    protected_item_name,
+    fabric_name="Azure",
+):
+    LOGGER.info(
+        f"Fetching recovery points for VM '{protected_item_name}' in vault '{vault_name}' (RG: {vault_resource_group})"
+    )
+    try:
+        count = 0
+        recovery_points = list(
+            CONFIG["recovery_backup_client"].recovery_points.list(
+                vault_name,
+                vault_resource_group,
+                fabric_name,
+                container_name,
+                protected_item_name,
+            )
+        )
+
+        if not len(recovery_points):
+            LOGGER.info(f"No recovery points found for {protected_item_name}")
+            return 0
+
+        for rp in recovery_points:
+            rp_tiers = getattr(rp.properties, "recovery_point_tier_details", [])
+
+            if rp.properties.object_type == "IaasVMRecoveryPoint" and any(
+                tier.status == "Valid" for tier in rp_tiers
+            ):
+                count += 1
+
+        LOGGER.info(f"Recovery point count for '{protected_item_name}': {count}")
+
+        return count
+
+    except Exception as e:
+        LOGGER.error(
+            f"Error extracting recovery point count for '{protected_item_name}': {e}"
+        )
+        return 0
+
+
+def extract_container_from_id(vm_id):
+    parts = vm_id.split("/")
+    try:
+        container = parts[parts.index("protectionContainers") + 1]
+        return container
+    except ValueError as e:
+        LOGGER.error(f"Failed to get container from {vm_id}: {e}")
+
+
+def extract_resource_group_from_id(id):
+    parts = id.split("/")
+    try:
+        resource_group = parts[parts.index("resourceGroups") + 1]
+        return resource_group.lower()
+    except ValueError as e:
+        LOGGER.error(f"Failed to get resource group from {id}: {e}")
+
+
+def extract_backup_details(
+    vault_name,
+    vault_resource_group,
+):
+    LOGGER.info(
+        f"Extracting backup details from vault '{vault_name}' in resource group '{vault_resource_group}'"
+    )
+    try:
+        backup_details = []
+        items = CONFIG["recovery_backup_client"].backup_protected_items.list(
+            vault_name, vault_resource_group
+        )
+
+        for item in items:
+            props = item.properties
+
+            if props.backup_management_type == "AzureIaasVM":
+                protected_item_name = item.name
+                vm_name = props.friendly_name
+
+                LOGGER.info(f"Processing protected VM: {vm_name}")
+
+                container_name = extract_container_from_id(item.id)
+                count = extract_recovery_point_count(
+                    vault_name,
+                    vault_resource_group,
+                    container_name,
+                    protected_item_name,
+                )
+
+                try:
+                    last_backup_time = (
+                        props.last_recovery_point.astimezone(
+                            ZoneInfo("Asia/Kolkata")
+                        ).strftime("%Y-%m-%d %I:%M %p")
+                        if props.last_recovery_point
+                        else np.nan
+                    )
+                except Exception as e:
+                    LOGGER.error(
+                        f"Failed to convert last recovery time for '{vm_name}': {e}"
+                    )
+                    last_backup_time = np.nan
+
+                backup_details.append(
+                    {
+                        "InstanceName": vm_name,
+                        "ResourceGroup": extract_resource_group_from_id(
+                            props.source_resource_id
+                        ),
+                        "VaultName": vault_name,
+                        "BackupCount": count,
+                        "LastBackupTime_IST": last_backup_time,
+                    }
+                )
+
+        LOGGER.info(
+            f"Extracted backup details for {len(backup_details)} VM(s) from vault '{vault_name}'"
+        )
+
+        return backup_details
+
+    except Exception as e:
+        LOGGER.error(f"Failed to extract backup details from vault '{vault_name}': {e}")
+        return []
+
+
+def extract_backup_details_for_all_vaults():
+    LOGGER.info(
+        "Starting extraction of backup details for all vaults in all resource groups."
+    )
+    backup_summary = []
+
+    try:
+        resource_groups = CONFIG["resource_client"].resource_groups.list()
+        for rg in resource_groups:
+            resource_group = rg.name
+
+            LOGGER.info(f"Scanning resource group: {resource_group}")
+
+            try:
+                vaults = CONFIG["recovery_client"].vaults.list_by_resource_group(
+                    resource_group
+                )
+
+                for vault in vaults:
+                    vault_name = vault.name
+                    details = extract_backup_details(vault_name, resource_group)
+                    backup_summary.extend(details)
+
+            except Exception as e:
+                LOGGER.error(
+                    f"Skipping vaults in resource group '{resource_group}' due to error: {e}"
+                )
+
+        LOGGER.info(
+            f"Completed backup detail extraction. Total VMs processed: {len(backup_summary)}"
+        )
+
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to retrieve backup details across all vaults: {e}", exc_info=True
+        )
+
+    return backup_summary
+
+
+def add_remarks(df, remarks):
+    df["Remarks"] = "-"
+    for remark in remarks:
+        mask = (df["InstanceName"] == remark["InstanceName"]) & (
+            df["ResourceGroup"] == remark["ResourceGroup"]
+        )
+        df["Remarks"] = np.where(mask, remark["Remarks"], df["Remarks"])
+
+    return df
+
+
+def process_all_vms():
+    all_vms = []
+    for vm in CONFIG["compute_client"].virtual_machines.list_all():
+        all_vms.append(
+            {
+                "InstanceID": vm.vm_id,
+                "InstanceName": vm.name,
+                "ResourceGroup": extract_resource_group_from_id(vm.id),
+            }
+        )
+
+    LOGGER.info(f"Total VMs discovered: {len(all_vms)}")
+    LOGGER.info("Starting fetching backup details.")
+
+    protected_vms = extract_backup_details_for_all_vaults()
+
+    all_vms_df = pd.DataFrame(all_vms)
+    protected_vms_df = pd.DataFrame(protected_vms)
+
+    backed_up_vm_df = pd.merge(
+        left=all_vms_df,
+        right=protected_vms_df,
+        how="left",
+        on=["InstanceName", "ResourceGroup"],
+    )
+
+    backed_up_vm_df["BackupCount"] = backed_up_vm_df["BackupCount"].fillna(0)
+
+    custom_remarks = [
+        {
+            "InstanceName": "pwc-ado-ubuntu2204",
+            "ResourceGroup": "pwc-asp2-dev",
+            "Remarks": "Not Required - As discussed with Ravi",
+        },
+        {
+            "InstanceName": "pwc-ado-windows2022",
+            "ResourceGroup": "pwc-asp2-dev",
+            "Remarks": "Not Required - As discussed with Ravi",
+        },
+        {
+            "InstanceName": "pwc-asp2-paloalto-fw-1",
+            "ResourceGroup": "pwc-asp2-pa-shared-rg",
+            "Remarks": "Not Required - As discussed with Sushil",
+        },
+        {
+            "InstanceName": "pwc-asp2-paloalto-fw-2",
+            "ResourceGroup": "pwc-asp2-pa-shared-rg",
+            "Remarks": "Not Required - As discussed with Sushil",
+        },
+    ]
+
+    add_remarks(backed_up_vm_df, custom_remarks)
+    backed_up_vm_df["ValidationReportDate"] = report_date
+
+    LOGGER.info("All backup details fetched.")
+
+    return backed_up_vm_df[
+        [
+            "InstanceName",
+            "ResourceGroup",
+            "BackupCount",
+            "LastBackupTime_IST",
+            "Remarks",
+        ]
+    ]
+
+
+def validate_sheet(raw_data, master_data):
+    merged_sheet = pd.merge(
+        left=raw_data,
+        right=master_data,
+        how="left",
+        on=["InstanceName", "ResourceGroup"],
+    )
+
+    matched_rows = merged_sheet.loc[merged_sheet["InstanceID_y"].notna()]
+    missing_rows = merged_sheet.loc[merged_sheet["InstanceID_y"].isna()]
+
+    matched_df = raw_data.loc[matched_rows.index]
+    missing_df = raw_data.loc[missing_rows.index]
+
+    matched_df["BackupCountMatch"] = (
+        matched_rows["BackupCount_x"] == matched_rows["BackupCount_y"]
+    )
+
+    return matched_df, missing_df
+
+
+def generate_backup_validation_report(
+    raw_df, master_input_file_path, report_output_file_path
+):
+    try:
+        master_df = pd.read_excel(master_input_file_path)
+
+        matched_df, missing_df = validate_sheet(raw_df, master_df)
+
+        output_sheets = {}
+        output_sheets["Azure"] = matched_df
+        output_sheets["Azure_Missing"] = missing_df
+
+        # Write all processed sheets to a single Excel
+        with pd.ExcelWriter(report_output_file_path) as excel_writer:
+            for sheet_name, df in output_sheets.items():
+                df.to_excel(excel_writer, sheet_name=sheet_name, index=False)
+
+        LOGGER.info(f"Saved master file to {report_output_file_path}")
+
+    except Exception as e:
+        LOGGER.error(f"Failed to generate backup validation report: {e}")
+
+
+def generate_master_file(raw_df, master_output_file_path):
+    try:
+        with pd.ExcelWriter(master_output_file_path) as excel_writer:
+            raw_df.to_excel(excel_writer, sheet_name="Azure", index=False)
+
+        LOGGER.info(f"Saved master file to {master_output_file_path}")
+
+    except Exception as e:
+        LOGGER.error(f"Failed to generate master file: {e}")
+
+
+def set_config(subscription_id):
+    global CONFIG
+    credential = DefaultAzureCredential()
+    CONFIG["subscription_id"] = subscription_id
+    CONFIG["compute_client"] = ComputeManagementClient(credential, subscription_id)
+    CONFIG["resource_client"] = ResourceManagementClient(credential, subscription_id)
+    CONFIG["recovery_client"] = RecoveryServicesClient(credential, subscription_id)
+    CONFIG["recovery_backup_client"] = RecoveryServicesBackupClient(
+        credential, subscription_id
+    )
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Azure VM Backup Validator")
+    parser.add_argument(
+        "--subscription-ids",
+        nargs="+",
+        required=True,
+        help="List of Azure Subscription IDs (space-separated)",
+    )
+    parser.add_argument(
+        "--only-generate-master",
+        action="store_true",
+        help="If set, only generate the master file and skip validation.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    backed_up_vm_df_list = []
+    for sub_id in args.subscription_ids:
+        LOGGER.info(f"Starting VM discovery across subscription {sub_id}")
+        set_config(sub_id)
+        backed_up_vm_df_list.append(process_all_vms())
+
+    raw_df = pd.concat(backed_up_vm_df_list, ignore_index=True)
+
+    master_input_file_path = os.path.expanduser(
+        "~/backup_validator/Azure_Backup_Master.xlsx"
+    )
+    report_output_file_path = os.path.expanduser(
+        "~/backup_validator/Azure_Backup_Validation_Report.xlsx"
+    )
+
+    # Generate only master if requested
+    if args.only_generate_master:
+        LOGGER.info("Generating master file only (validation skipped)...")
+        generate_master_file(raw_df, master_output_file_path=master_input_file_path)
+        return
+
+    # Compares live i.e. raw data from Azure and compares it with pre-existing master file
+    generate_backup_validation_report(
+        raw_df, master_input_file_path, report_output_file_path
+    )
+
+    # Overwrites and updates current master file
+    generate_master_file(raw_df, master_output_file_path=master_input_file_path)
+
+
+if __name__ == "__main__":
+    main()
